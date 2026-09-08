@@ -44,13 +44,22 @@ const SYSTEM = `너는 보험 보장분석 원본 PDF를 구조화 데이터로 
 - plan.p1=미가입/최우선, p2=부족 보완, p3=생활·구조조정 (각 3~5개).`;
 
 const path = require("path");
+const fs = require("fs");
+// cmaps 폴더 경로 자동탐색: 레포에 번들한 api/cmaps 우선, 없으면 node_modules
+function findCmapDir() {
+  const cands = [path.join(__dirname, "cmaps")];
+  try { cands.push(path.join(path.dirname(require.resolve("pdfjs-dist/package.json")), "cmaps")); } catch (_) {}
+  for (const c of cands) { try { if (fs.existsSync(path.join(c, "Adobe-Korea1-UCS2.bcmap"))) return c; } catch (_) {} }
+  return cands[0];
+}
 // PDF 텍스트를 pdfjs + cMap으로 추출 — 나눔고딕 CID 등 ToUnicode가 없어 이미지로는 안 읽히는
-// 회사명·상품명·설계사·고객명을 디코딩해 Claude에 함께 넘긴다. 실패해도 빈 문자열 반환(PDF만으로 진행).
+// 회사명·상품명·설계사·고객명을 디코딩해 Claude에 함께 넘긴다. 실패해도 빈 텍스트 반환(PDF만으로 진행).
 async function extractPdfText(buf) {
+  const dbg = { cmapDir: "", pages: 0, err: "" };
   try {
     const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-    const cMapUrl = path.join(path.dirname(require.resolve("pdfjs-dist/package.json")), "cmaps") + path.sep;
-    const doc = await pdfjs.getDocument({ data: new Uint8Array(buf), cMapUrl, cMapPacked: true, isEvalSupported: false, disableFontFace: true, verbosity: 0 }).promise;
+    const dir = findCmapDir(); dbg.cmapDir = dir;
+    const doc = await pdfjs.getDocument({ data: new Uint8Array(buf), cMapUrl: dir + path.sep, cMapPacked: true, isEvalSupported: false, disableFontFace: true, verbosity: 0 }).promise;
     const parts = [];
     const N = Math.min(doc.numPages, LIMITS.maxPages);
     for (let p = 1; p <= N; p++) {
@@ -59,9 +68,10 @@ async function extractPdfText(buf) {
       const t = tc.items.map((i) => i.str).join(" ").replace(/[ \t]+/g, " ").trim();
       if (t) parts.push("[p" + p + "] " + t);
     }
+    dbg.pages = N;
     try { await doc.destroy(); } catch (_) {}
-    return parts.join("\n");
-  } catch (e) { return ""; }
+    return { text: parts.join("\n"), dbg };
+  } catch (e) { dbg.err = String((e && e.message) || e); return { text: "", dbg }; }
 }
 
 module.exports = async (req, res) => {
@@ -84,8 +94,8 @@ module.exports = async (req, res) => {
   if (m) pages = Math.max(pages, parseInt(m[1], 10));
   if (pages > LIMITS.maxPages) { res.status(413).json({ error: `페이지가 너무 많습니다 (약 ${pages}p). 최대 ${LIMITS.maxPages}p까지만 변환합니다.` }); return; }
 
-  let pdfText = "";
-  try { pdfText = await extractPdfText(buf); } catch (_) {}
+  let pdfText = "", pdfDbg = {};
+  try { const ex = await extractPdfText(buf); pdfText = ex.text; pdfDbg = ex.dbg || {}; } catch (e) { pdfDbg = { err: String((e && e.message) || e) }; }
 
   const content = [{ type: "document", source: { type: "base64", media_type: "application/pdf", data: pdfBase64 } }];
   if (pdfText) content.push({ type: "text", text:
@@ -116,5 +126,5 @@ module.exports = async (req, res) => {
   const tu = (data.content || []).find(b => b.type === "tool_use");
   if (!tu) { res.status(502).json({ error: "추출 결과를 받지 못했습니다." }); return; }
 
-  res.status(200).json({ data: tu.input, usage: data.usage || {} });
+  res.status(200).json({ data: tu.input, usage: data.usage || {}, _dbg: { textLen: pdfText.length, cmapDir: pdfDbg.cmapDir || "", cmapErr: pdfDbg.err || "", pages: pdfDbg.pages || 0 } });
 };
