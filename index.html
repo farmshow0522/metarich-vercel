@@ -174,6 +174,22 @@ tbody tr:nth-child(even){background:#f8fafd;}
 .simple .cols.d-compact .item{padding:3px 0;}.simple .cols.d-compact .item .r2{margin:3px 0 2px;}.simple .cols.d-compact .item .nm{font-size:10.3px;}.simple .cols.d-compact .item .pct{font-size:10px;}.simple .cols.d-compact .item .r3{font-size:9.3px;}
 .simple .cols.d-tiny .item{padding:2px 0;}.simple .cols.d-tiny .item .r2{margin:2.5px 0 1.5px;}.simple .cols.d-tiny .item .nm{font-size:9.4px;line-height:1.15;}.simple .cols.d-tiny .item .pct{font-size:9px;}.simple .cols.d-tiny .item .r3{font-size:8.6px;}.simple .cols.d-tiny .item .track{height:4px;}
 
+/* ===== 비주얼 직접수정 편집기 ===== */
+.edrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+.edrow .vstatus{font-size:12.5px;font-weight:700;color:#8a93a6;margin-left:2px;}
+.edrow .btn-mini{padding:9px 13px;font-size:13px;}
+#preview.vedit [data-edit]{background:#fffdf3;box-shadow:inset 0 0 0 1px #efe0b0;border-radius:4px;cursor:text;}
+#preview.vedit [data-edit]:hover{box-shadow:inset 0 0 0 1px #28c2c8;}
+#preview.vedit [data-edit]:focus{background:#fff;box-shadow:inset 0 0 0 2px #28c2c8;outline:none;}
+#preview .pri li{align-items:flex-start;}
+#preview .pri li .rc{display:none;gap:2px;margin-left:6px;flex:0 0 auto;}
+#preview .pri li .rc button{padding:0 5px;font-size:11px;line-height:1.6;border:none;border-radius:5px;background:#eef2fb;color:#2b3a72;font-weight:700;cursor:pointer;}
+#preview .pri li .rc .del:hover{background:#f6d6d3;color:#b23b32;}#preview .pri li .rc button:hover{background:#dbe4f7;}
+#preview .pri .addbtn{display:none;margin-top:8px;width:100%;padding:6px;font-size:12px;background:#f3f6fc;color:#2b3a72;border:1px dashed #b9c3d8;border-radius:8px;cursor:pointer;}
+#preview.vedit .pri li .rc{display:flex;}#preview.vedit .pri .addbtn{display:block;}
+#vtoast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c2a5e;color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;font-weight:700;z-index:70;opacity:0;transition:opacity .25s;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none;}
+#vtoast.show{opacity:1;}
+
 @media print{
   body{background:#fff;}
   .noprint{display:none !important;}
@@ -229,7 +245,15 @@ tbody tr:nth-child(even){background:#f8fafd;}
 
   <!-- STEP 3 -->
   <div class="panel step" id="step3">
-    <h2><span class="no">3</span> 미리보기</h2>
+    <h2><span class="no">3</span> 미리보기 · 직접수정</h2>
+    <div class="edrow">
+      <button class="btn btn-mini" id="vtoggle">✏️ 편집 모드</button>
+      <button class="btn-ghost btn-mini" id="vundo">↶ 되돌리기</button>
+      <button class="btn-ghost btn-mini" id="vsave">💾 저장</button>
+      <button class="btn-ghost btn-mini" id="vrevert">↺ 원래대로</button>
+      <span class="vstatus" id="vstatus"></span>
+    </div>
+    <p class="hint" id="vhelp" style="display:none;margin:0 0 10px;">노란 배경 글자를 <b>클릭해서 바로 수정</b>(모든 페이지) · 액션플랜 항목은 <b>↑ ↓ ✕</b>·<b>+ 항목 추가</b> · <b>💾 저장</b>은 새로고침해도 유지 · 다 되면 편집을 끄고 위의 <b>🖨 PDF로 저장</b></p>
     <div class="previewWrap"><div class="previewScale" id="preview"></div></div>
   </div>
 </div>
@@ -358,7 +382,7 @@ $("run").onclick=async()=>{
 function fileToB64(f){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(f);});}
 
 $("render").onclick=renderProposal;
-$("print").onclick=()=>{renderProposal();window.print();};
+$("print").onclick=()=>{ if($("preview").innerHTML.trim()){ vSyncProposal(); } else { renderProposal(); vSyncProposal(); } window.print(); };
 
 function renderProposal(){
   let d;try{d=JSON.parse($("data").value);}catch(e){setStatus("JSON 형식 오류: "+e.message,"err");return;}
@@ -422,14 +446,50 @@ function renderProposal(){
   $("preview").style.transform=`scale(${scale})`;$("preview").style.width=(297*3.78)+"px";
   wrap.style.height=(210*3.78*scale*pages.length+14*pages.length)+"px";
   $("step2").classList.add("active");$("step3").classList.add("active");saveWork();
+  try{vInit();}catch(e){}
   $("step3").scrollIntoView({behavior:"smooth"});
 }
+
+/* ================= 비주얼 직접수정 편집기 ================= */
+const LS_EDIT="metarich_editedHTML";
+let vEditing=false, vHist=[], vHi=-1, vDeb;
+const EDSEL=".htitle,.cover h1,.csub,.meta,.stat .l,.stat .v,.card-title,.card-desc,thead th,tbody td,.banner,.next h4,.next p,.disc li,.simple .title,.simple .lab,.simple .k,.simple .v,.simple .gnum,.simple .ct,.simple .cs,.simple .nm,.simple .pct,.simple .r3 span,.pfoot span";
+function vToast(m){let t=$("vtoast");if(!t){t=document.createElement("div");t.id="vtoast";document.body.appendChild(t);}t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1600);}
+function vMark(on){const p=$("preview");if(!p)return;
+  p.querySelectorAll(EDSEL).forEach(el=>{if(on){el.setAttribute("contenteditable","true");el.setAttribute("data-edit","");}else{el.removeAttribute("contenteditable");el.removeAttribute("data-edit");}});
+  p.querySelectorAll(".pri .litxt").forEach(t=>{if(on){t.setAttribute("contenteditable","true");t.setAttribute("data-edit","");}else{t.removeAttribute("contenteditable");t.removeAttribute("data-edit");}});}
+function vAddCtrl(li){if(li.querySelector(".rc"))return;
+  if(!li.querySelector(".litxt")){const ck=li.querySelector(".ck");let rest="";li.childNodes.forEach(n=>{if(n!==ck)rest+=(n.textContent||"");});li.innerHTML="";if(ck)li.appendChild(ck);li.insertAdjacentHTML("beforeend"," <span class=\"litxt\">"+esc(rest.trim())+"</span>");}
+  const rc=document.createElement("span");rc.className="rc";rc.innerHTML='<button class="up">↑</button><button class="down">↓</button><button class="del">✕</button>';li.appendChild(rc);
+  rc.querySelector(".up").onclick=()=>{if(li.previousElementSibling){li.parentNode.insertBefore(li,li.previousElementSibling);vSnap();}};
+  rc.querySelector(".down").onclick=()=>{if(li.nextElementSibling){li.parentNode.insertBefore(li.nextElementSibling,li);vSnap();}};
+  rc.querySelector(".del").onclick=()=>{li.remove();vSnap();};}
+function vDecorate(){const p=$("preview");if(!p)return;
+  p.querySelectorAll(".pri ul").forEach(ul=>{ul.querySelectorAll("li").forEach(vAddCtrl);
+    if(!ul.parentNode.querySelector(".addbtn")){const b=document.createElement("button");b.className="addbtn";b.textContent="+ 항목 추가";
+      b.onclick=()=>{const li=document.createElement("li");li.innerHTML='<span class="ck">✓</span> <span class="litxt">새 항목</span>';ul.appendChild(li);vAddCtrl(li);if(vEditing){const t=li.querySelector(".litxt");t.setAttribute("contenteditable","true");t.setAttribute("data-edit","");t.focus();}vSnap();};
+      ul.parentNode.appendChild(b);}});}
+function vClean(){const p=$("preview");if(!p)return"";const c=p.cloneNode(true);c.querySelectorAll(".rc,.addbtn").forEach(e=>e.remove());c.querySelectorAll("[contenteditable]").forEach(e=>e.removeAttribute("contenteditable"));c.querySelectorAll("[data-edit]").forEach(e=>e.removeAttribute("data-edit"));return c.innerHTML;}
+function vSyncProposal(){$("proposal").innerHTML=vClean();}
+function vSnap(){const h=vClean();if(vHist[vHi]===h)return;vHist=vHist.slice(0,vHi+1);vHist.push(h);vHi=vHist.length-1;if(vHist.length>80){vHist.shift();vHi--;}const u=$("vundo");if(u)u.disabled=(vHi<=0);vSetSaved(false);}
+function vSetSaved(on){const s=$("vstatus");if(s)s.textContent=on?"저장됨 ✓":"미저장 변경";}
+function vApply(){const p=$("preview");if(!p)return;p.classList.toggle("vedit",vEditing);vMark(vEditing);const b=$("vtoggle");if(b)b.textContent=vEditing?"👁 편집 끄기":"✏️ 편집 모드";const h=$("vhelp");if(h)h.style.display=vEditing?"":"none";}
+function vInit(){vDecorate();vApply();vHist=[vClean()];vHi=0;const u=$("vundo");if(u)u.disabled=true;vSetSaved(false);}
+$("preview").addEventListener("input",()=>{clearTimeout(vDeb);vDeb=setTimeout(vSnap,600);});
+$("vtoggle").onclick=()=>{vEditing=!vEditing;vApply();};
+$("vundo").onclick=()=>{if(vHi>0){vHi--;$("preview").innerHTML=vHist[vHi];vDecorate();vApply();const u=$("vundo");if(u)u.disabled=(vHi<=0);vSetSaved(false);vToast("↶ 한 단계 되돌렸습니다");}};
+$("vsave").onclick=()=>{try{localStorage.setItem(LS_EDIT,vClean());vSetSaved(true);vToast("💾 저장했습니다 (새로고침해도 유지)");}catch(e){vToast("저장 실패: "+e.message);}};
+$("vrevert").onclick=()=>{if(confirm("직접수정한 내용을 버리고 자동추출 상태로 되돌릴까요?")){try{localStorage.removeItem(LS_EDIT);}catch(e){}vEditing=false;renderProposal();vToast("↺ 자동추출 상태로 되돌렸습니다");}};
 
 $("sample").onclick=()=>{$("data").value=JSON.stringify(SAMPLE,null,2);setStatus("샘플 데이터를 불러왔습니다. 아래 미리보기를 확인하세요.","ok");renderProposal();};
 /* 작업물 자동 저장 · 복원 · 초기화 */
 $("data").addEventListener("input",saveWork);
-$("reset").onclick=()=>{try{localStorage.removeItem(LS_DATA);}catch(e){}$("data").value="";$("proposal").innerHTML="";$("preview").innerHTML="";$("step2").classList.remove("active");$("step3").classList.remove("active");selectedFile=null;const dp=$("drop");if(dp)dp.classList.remove("has");const fn=$("fileName");if(fn)fn.textContent="모바일에서는 파일·드라이브·사진 앱에서 PDF를 고를 수 있어요";setStatus("작업물을 초기화했습니다.","ok");};
-(function(){try{const saved=localStorage.getItem(LS_DATA);if(saved&&saved.trim()){JSON.parse(saved);$("data").value=saved;renderProposal();setStatus("이전 작업물을 복원했습니다. (지우려면 '초기화')","info");}}catch(e){}})();
+$("reset").onclick=()=>{try{localStorage.removeItem(LS_DATA);localStorage.removeItem(LS_EDIT);}catch(e){}vHist=[];vHi=-1;vEditing=false;$("data").value="";$("proposal").innerHTML="";$("preview").innerHTML="";$("step2").classList.remove("active");$("step3").classList.remove("active");selectedFile=null;const dp=$("drop");if(dp)dp.classList.remove("has");const fn=$("fileName");if(fn)fn.textContent="모바일에서는 파일·드라이브·사진 앱에서 PDF를 고를 수 있어요";setStatus("작업물을 초기화했습니다.","ok");};
+(function(){try{const saved=localStorage.getItem(LS_DATA);if(saved&&saved.trim()){JSON.parse(saved);$("data").value=saved;renderProposal();
+  const eh=localStorage.getItem(LS_EDIT);
+  if(eh&&eh.trim()){$("preview").innerHTML=eh;$("proposal").innerHTML=eh;vInit();vSetSaved(true);setStatus("이전 작업물 + 직접수정본을 복원했습니다. (되돌리려면 '원래대로')","info");}
+  else setStatus("이전 작업물을 복원했습니다. (지우려면 '초기화')","info");
+}}catch(e){}})();
 const SAMPLE={
  customer:{name:"김*섭 고객님",analysisDate:"2026.08.13",company:"한화손해보험",org:"김광섭(제주센트럴/(주)메타리치)",contact:"010-7934-1823"},
  summary:{sufficient:18,insufficient:12,none:6,monthlyPremium:"317,473원",totalPremium:"99,643,680원",paidRate:"18%",remainingPremium:"81,870,423원",
