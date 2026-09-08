@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>메타리치 PDF 변환기</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{font-family:'Noto Sans KR',sans-serif;color:#2a2f45;background:#eef1f6;}
+:root{--navy:#1c2a5e;--teal:#28c2c8;--gold:#e0a23a;--green:#2fb37a;--amber:#eaa02a;--red:#e0574f;--gray:#9aa3b2;--blue:#5a8fd6;}
+
+/* ===== 상단 브랜드 바 ===== */
+.topbar{background:linear-gradient(100deg,#1a2550,#233069 60%,#4a3c78);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:12px;}
+.topbar .logo{font-size:20px;font-weight:900;letter-spacing:-.5px;}
+.topbar .logo b{color:var(--gold);}
+.topbar .tag{font-size:13px;color:#c7cfe8;margin-left:4px;}
+.topbar .badge{margin-left:auto;font-size:11px;font-weight:700;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:5px 11px;border-radius:20px;color:#dbe2f5;}
+
+/* ===== 컨트롤 UI ===== */
+.app{max-width:1000px;margin:0 auto;padding:24px 20px 60px;}
+.steps{display:flex;gap:8px;margin-bottom:16px;font-size:12.5px;color:#8a93a6;}
+.steps span{background:#fff;border:1px solid #e2e7f0;border-radius:20px;padding:6px 13px;}
+.steps span b{color:#2b3a72;}
+.panel{background:#fff;border:1px solid #e2e7f0;border-radius:14px;padding:22px 24px;margin-bottom:16px;box-shadow:0 4px 14px rgba(30,45,90,.05);}
+.panel h2{font-size:16px;color:#1c2a5e;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.panel h2 .no{width:24px;height:24px;border-radius:50%;background:#2b3a72;color:#fff;font-size:13px;display:inline-flex;align-items:center;justify-content:center;}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+label{font-size:13px;color:#42506e;font-weight:700;display:block;margin-bottom:6px;}
+input[type=password],input[type=text]{flex:1;min-width:0;padding:11px 13px;border:1px solid #cdd5e3;border-radius:9px;font-size:14px;font-family:inherit;}
+/* 업로드 드롭존 */
+.drop{border:2px dashed #b9c3d8;border-radius:12px;padding:26px 18px;text-align:center;cursor:pointer;background:#f7f9fd;transition:.15s;-webkit-tap-highlight-color:transparent;}
+.drop:hover{border-color:#5a4a94;background:#f1f4fc;}
+.drop.drag{border-color:#2b3a72;background:#eaf0fd;}
+.drop.has{border-style:solid;border-color:#2fb37a;background:#eef8f2;}
+.drop-ico{font-size:30px;line-height:1;}
+.drop-t{font-size:14px;color:#42506e;margin-top:9px;}.drop-t b{color:#2b3a72;}
+.drop-s{font-size:12px;color:#8a93a6;margin-top:6px;line-height:1.5;}
+button{font-family:inherit;font-weight:700;border:none;border-radius:9px;padding:11px 20px;font-size:14px;cursor:pointer;}
+.btn{background:#2b3a72;color:#fff;}.btn:hover{background:#1c2a5e;}
+.btn-ghost{background:#eef2fb;color:#2b3a72;}.btn-ghost:hover{background:#dfe6f7;}
+.btn-go{background:linear-gradient(100deg,#2b3a72,#5a4a94);color:#fff;font-size:15px;padding:13px 26px;}
+.btn-gold{background:var(--gold);color:#3a2c08;}.btn-gold:hover{background:#d0902a;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.hint{font-size:12px;color:#8a93a6;margin-top:8px;line-height:1.5;}
+.warn{background:#fdf6e8;border:1px solid #f0e2c0;color:#7a5a1e;border-radius:9px;padding:12px 14px;font-size:12.5px;line-height:1.55;margin-top:12px;}
+.status{font-size:13.5px;margin-top:12px;padding:11px 14px;border-radius:9px;display:none;}
+.status.show{display:block;}
+.status.info{background:#eef4fc;color:#33456e;}.status.err{background:#fdf0ef;color:#8a3b34;}.status.ok{background:#eef8f2;color:#256b4c;}
+textarea{width:100%;min-height:320px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;border:1px solid #cdd5e3;border-radius:10px;padding:14px;line-height:1.5;}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid #ffffff80;border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.step{opacity:.45;pointer-events:none;}.step.active{opacity:1;pointer-events:auto;}
+.previewWrap{background:#5a637a;border-radius:14px;padding:20px;overflow:auto;}
+.previewScale{transform-origin:top left;}
+
+/* ===== 제안서 (2안 디자인) ===== */
+#proposal{display:none;}
+.page,.cover{position:relative;width:297mm;height:210mm;overflow:hidden;background:#fff;}
+.page{margin-bottom:14px;}
+.cover{margin-bottom:14px;background:linear-gradient(120deg,#20305f,#2c3a72 45%,#5b4a8f);}
+.head{position:relative;height:118px;background:linear-gradient(100deg,#1a2550,#233069 55%,#4a3c78);display:flex;align-items:center;padding:0 46px;}
+.head .num{width:52px;height:52px;border-radius:50%;border:2px solid var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;margin-right:22px;}
+.head .htitle{color:#fff;font-size:29px;font-weight:800;letter-spacing:-.5px;}
+.head .heng{position:absolute;right:46px;color:#aeb9dd;font-size:15px;}
+.body{padding:30px 46px 0;}
+.card{background:#fff;border:1px solid #e7ebf3;border-radius:14px;box-shadow:0 6px 18px rgba(30,45,90,.06);padding:18px 22px;}
+.card-title{font-size:18px;font-weight:800;color:#1c2a5e;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.tag{font-size:12px;font-weight:700;color:#fff;padding:3px 11px;border-radius:20px;background:var(--gray);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead th{background:#1f2d5c;color:#fff;font-weight:600;padding:8px 12px;text-align:center;}
+thead th:first-child{text-align:left;}
+tbody td{padding:7px 12px;text-align:center;border-bottom:1px solid #eef1f7;}
+tbody td:first-child{text-align:left;color:#39415c;}
+tbody tr:nth-child(even){background:#f8fafd;}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 11px;border-radius:20px;color:#fff;white-space:nowrap;}
+.b-ok{background:var(--green);}.b-bad{background:var(--red);}.b-gray{background:var(--gray);}
+.num-ok{color:var(--green);font-weight:700;}.num-bad{color:var(--red);font-weight:700;}
+.banner{border-radius:12px;padding:14px 20px;font-size:13px;line-height:1.6;margin-top:14px;}
+.banner.amber{background:#fdf6e8;color:#7a5a1e;}.banner.blue{background:#eef4fc;color:#33456e;}
+.banner b{color:#1c2a5e;}
+.foot{position:absolute;bottom:20px;left:46px;right:46px;display:flex;justify-content:space-between;font-size:12px;color:#9aa3b2;border-top:1px solid #eef1f7;padding-top:10px;}
+.foot b{color:#1c2a5e;}
+.cover .pv{position:absolute;right:44px;top:20px;font-size:150px;font-weight:900;color:rgba(255,255,255,.05);letter-spacing:8px;writing-mode:vertical-rl;}
+.cover .dia{position:absolute;background:rgba(255,255,255,.05);width:230px;height:230px;transform:rotate(45deg);top:60px;left:250px;}
+.cv{position:absolute;left:90px;top:230px;}
+.cbadge{display:inline-block;background:var(--teal);color:#fff;font-weight:700;font-size:15px;letter-spacing:3px;padding:9px 20px;border-radius:6px;}
+.cover h1{color:#fff;font-size:60px;font-weight:900;line-height:1.15;margin-top:24px;letter-spacing:-1px;}
+.cover .csub{color:#c7cfe8;font-size:21px;margin-top:18px;font-weight:300;}
+.cover .rule{width:70px;height:4px;background:var(--teal);margin:26px 0;}
+.cover .meta{color:#c7cfe8;font-size:16px;line-height:2;}.cover .meta b{color:#fff;}
+.stats{position:absolute;left:90px;bottom:64px;display:flex;gap:16px;}
+.stat{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:15px 24px;min-width:150px;}
+.stat .l{color:#c7cfe8;font-size:13px;}.stat .v{color:#fff;font-size:24px;font-weight:800;margin-top:5px;white-space:nowrap;}
+.circ-wrap{display:flex;justify-content:center;gap:70px;padding:8px 0 4px;}
+.circ{text-align:center;}
+.ball{width:150px;height:150px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 10px 24px rgba(30,45,90,.16);margin:0 auto;}
+.ball .t{font-size:15px;font-weight:600;opacity:.95;}.ball .n{font-size:50px;font-weight:900;line-height:1;}.ball .n small{font-size:18px;}
+.circ .cap{margin-top:13px;font-size:14px;font-weight:700;color:#1c2a5e;}
+.statrow{display:flex;gap:16px;margin-top:22px;}
+.scard{flex:1;border:1px solid #e7ebf3;border-radius:14px;padding:18px 12px;text-align:center;box-shadow:0 4px 12px rgba(30,45,90,.05);}
+.scard .v{font-size:30px;font-weight:900;color:#1c2a5e;white-space:nowrap;}.scard .v small{font-size:15px;}
+.scard .l{font-size:12.5px;color:#5c667e;margin-top:5px;}
+.scard.alert .v{color:var(--red);}
+.dgrid{display:flex;gap:18px;flex-wrap:wrap;}.dgrid .card{flex:1;min-width:0;}
+.pri-wrap{display:flex;gap:16px;}
+.pri{flex:1;border:1px solid #e7ebf3;border-radius:14px;padding:18px;box-shadow:0 4px 12px rgba(30,45,90,.05);}
+.pri h4{font-size:17px;margin-bottom:12px;}
+.pri.p1{border-top:4px solid var(--red);}.pri.p1 h4{color:var(--red);}
+.pri.p2{border-top:4px solid var(--amber);}.pri.p2 h4{color:var(--amber);}
+.pri.p3{border-top:4px solid var(--teal);}.pri.p3 h4{color:var(--teal);}
+.pri li{list-style:none;font-size:13px;padding:7px 0;border-bottom:1px dashed #e7ebf3;display:flex;gap:8px;color:#39415c;}
+.pri li:last-child{border-bottom:none;}.pri li .ck{color:var(--teal);font-weight:900;}
+.next{margin-top:16px;background:linear-gradient(100deg,#43407a,#6a4f96);color:#fff;border-radius:14px;padding:18px 22px;}
+.next h4{font-size:17px;margin-bottom:7px;}.next p{font-size:13.5px;line-height:1.6;}
+.disc li{list-style:none;display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed #eef1f7;font-size:13.5px;line-height:1.55;color:#4a5270;}
+.disc .ck{color:var(--teal);font-weight:900;}.disc b{color:#1c2a5e;}
+
+@media print{
+  body{background:#fff;}
+  .noprint{display:none !important;}
+  #proposal{display:block !important;}
+  .page,.cover{margin:0 !important;page-break-after:always;break-after:page;}
+  @page{size:297mm 210mm;margin:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar noprint">
+  <div class="logo">메타<b>리치</b> PDF 변환기</div>
+  <div class="tag">보장분석 PDF → 제안서 PDF 자동 변환</div>
+  <div class="badge">브라우저 전용 · 서버 없음</div>
+</div>
+
+<div class="app noprint">
+  <div class="steps"><span><b>1</b> 업로드</span><span><b>2</b> 확인·수정</span><span><b>3</b> PDF 저장</span></div>
+
+  <!-- STEP 1 -->
+  <div class="panel">
+    <h2><span class="no">1</span> 원본 업로드</h2>
+    <div>
+      <label>보장분석 원본 PDF</label>
+      <input type="file" id="pdf" accept="application/pdf,.pdf" hidden>
+      <div class="drop" id="drop">
+        <div class="drop-ico">📄⬆️</div>
+        <div class="drop-t">PDF를 여기로 <b>끌어다 놓거나</b> <b>탭하여 선택</b></div>
+        <div class="drop-s" id="fileName">모바일에서는 파일·드라이브·사진 앱에서 PDF를 고를 수 있어요</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:18px;">
+      <button class="btn-go" id="run"><span id="runlbl">변환 시작</span></button>
+      <button class="btn-ghost" id="sample">샘플로 미리보기</button>
+    </div>
+    <div class="warn">⚠ <b>개인(신용)정보 주의:</b> 업로드한 PDF는 데이터 추출을 위해 서버(Vercel 함수)를 거쳐 Claude API로 전송됩니다. <b>API 키는 서버에만 저장되어 방문자에게 노출되지 않습니다.</b> 사내 정책·고객 동의 범위 내에서만 사용하세요.</div>
+    <div class="status" id="st"></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="panel step" id="step2">
+    <h2><span class="no">2</span> 결과 확인 · 수정</h2>
+    <p class="hint" style="margin:0 0 10px;">자동 추출값입니다. 틀린 부분(이름·회사·수치·상태)을 고친 뒤 아래 버튼을 누르세요. (JSON 형식 유지)</p>
+    <textarea id="data" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:14px;">
+      <button class="btn" id="render">제안서 생성 / 미리보기</button>
+      <button class="btn-gold" id="print">🖨 PDF로 저장</button>
+      <button class="btn-ghost" id="reset">🗑 초기화</button>
+    </div>
+    <p class="hint">인쇄창에서 <b>대상: PDF로 저장</b> · <b>용지: A4 가로</b> · <b>여백: 없음</b> · <b>배경 그래픽 켜기</b></p>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="panel step" id="step3">
+    <h2><span class="no">3</span> 미리보기</h2>
+    <div class="previewWrap"><div class="previewScale" id="preview"></div></div>
+  </div>
+</div>
+
+<div id="proposal"></div>
+
+<script>
+const API_URL="https://api.anthropic.com/v1/messages";
+const MODEL="claude-opus-4-8";
+/* ===== 비용 안전장치 (건당 상한) ===== */
+const LIMITS={maxFileMB:3, maxPages:25, maxTokensOut:6000, maxCostUSD:1.00, krw:1400, perPageInTok:4000, baseInTok:2000, priceInPerM:5, priceOutPerM:25};
+function pdfLatin1(buf){const b=new Uint8Array(buf);let s="";const c=0x8000;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return s;}
+function countPages(buf){const s=pdfLatin1(buf);let c=(s.match(/\/Type\s*\/Page[^s]/g)||[]).length;const m=s.match(/\/Count\s+(\d+)/);if(m)c=Math.max(c,parseInt(m[1],10));return c;}
+function base64FromBuf(buf){return btoa(pdfLatin1(buf));}
+function estCost(p){const inTok=p*LIMITS.perPageInTok+LIMITS.baseInTok;return {inTok,usd:inTok/1e6*LIMITS.priceInPerM+LIMITS.maxTokensOut/1e6*LIMITS.priceOutPerM};}
+/* 작업물 로컬 저장 키 */
+const LS_DATA="metarich_lastData";
+function saveWork(){try{localStorage.setItem(LS_DATA,($("data")&&$("data").value)||"");}catch(e){}}
+
+const SCHEMA={type:"object",additionalProperties:false,
+ required:["customer","summary","diagnosis","contracts","plan"],
+ properties:{
+  customer:{type:"object",additionalProperties:false,required:["name","analysisDate","company","org","contact"],
+   properties:{name:{type:"string",description:"고객명. 마스킹/미상이면 '고객님'"},analysisDate:{type:"string"},company:{type:"string"},org:{type:"string"},contact:{type:"string"}}},
+  summary:{type:"object",additionalProperties:false,required:["sufficient","insufficient","none","monthlyPremium","totalPremium","paidRate","remainingPremium","text"],
+   properties:{sufficient:{type:"integer"},insufficient:{type:"integer"},none:{type:"integer"},monthlyPremium:{type:"string"},totalPremium:{type:"string"},paidRate:{type:"string"},remainingPremium:{type:"string"},text:{type:"string"}}},
+  diagnosis:{type:"array",items:{type:"object",additionalProperties:false,required:["group","note","rows"],
+   properties:{group:{type:"string"},note:{type:"string"},rows:{type:"array",items:{type:"object",additionalProperties:false,required:["name","standard","current","status"],
+    properties:{name:{type:"string"},standard:{type:"string"},current:{type:"string"},status:{type:"string",enum:["충분","부족","미가입","초과","충족"]}}}}}}},
+  contracts:{type:"object",additionalProperties:false,required:["rows","totalMonthly","note"],
+   properties:{rows:{type:"array",items:{type:"object",additionalProperties:false,required:["company","product","contractDate","maturity","payTerm","monthly"],
+    properties:{company:{type:"string"},product:{type:"string"},contractDate:{type:"string"},maturity:{type:"string"},payTerm:{type:"string"},monthly:{type:"string"}}}},totalMonthly:{type:"string"},note:{type:"string"}}},
+  plan:{type:"object",additionalProperties:false,required:["p1","p2","p3","nextSteps"],
+   properties:{p1:{type:"array",items:{type:"string"}},p2:{type:"array",items:{type:"string"}},p3:{type:"array",items:{type:"string"}},nextSteps:{type:"string"}}}
+ }};
+
+const SYSTEM=`너는 보험 보장분석 원본 PDF를 구조화 데이터로 추출하는 분석기다. 첨부된 PDF를 읽고 emit_analysis 도구를 호출해 값을 채워라.
+원칙:
+- 원본에 없는 수치·회사·상품명을 절대 지어내지 마라. 불명확하면 "-" 또는 "확인필요".
+- 개인정보가 마스킹돼 있으면 그대로 두고 name은 "고객님".
+- 금액은 원본 표기 유지(천단위 콤마), 진단표 수치는 만원 단위 숫자.
+- status: 가입금액이 표준 이상이면 "충분"(초과 시 "초과"), 미만이면 "부족", 0/미가입이면 "미가입".
+- diagnosis는 보통 5영역: 사망·후유장해 / 암·뇌혈관·심장 / 의료·수술·입원 / 요양·치매 / 운전자·생활. 원본 구조에 맞게 조정.
+- summary.text, plan.nextSteps, note는 한국어 한두 문장.
+- plan.p1=미가입/최우선, p2=부족 보완, p3=생활·구조조정 (각 3~5개).`;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function setStatus(m,t){const e=$("st");e.className="status show "+(t||"info");e.innerHTML=m;}
+function numCls(s){if(["충분","초과","충족"].includes(s))return 'num-ok';if(s==="부족")return 'num-bad';return '';}
+function badge(s){const c=["충분","초과","충족"].includes(s)?'b-ok':(s==="부족"?'b-bad':'b-gray');return `<span class="badge ${c}">${esc(s)}</span>`;}
+
+
+/* ===== 업로드: 드래그&드롭 + 모바일 탭 ===== */
+let selectedFile=null;
+(function(){
+  const drop=$("drop"),pdf=$("pdf"),fn=$("fileName");
+  function setFile(f){
+    if(!f)return;
+    if(f.type && f.type!=="application/pdf" && !/\.pdf$/i.test(f.name||"")){setStatus("PDF 파일만 업로드할 수 있습니다.","err");return;}
+    selectedFile=f;drop.classList.add("has");
+    fn.innerHTML="✓ 선택됨: <b>"+esc(f.name)+"</b> ("+(f.size/1048576).toFixed(1)+"MB)";
+    setStatus("PDF 선택 완료. '변환 시작'을 누르세요.","ok");
+  }
+  drop.addEventListener("click",()=>pdf.click());
+  pdf.addEventListener("change",()=>setFile(pdf.files[0]));
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();drop.classList.add("drag");}));
+  ["dragleave","dragend"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();drop.classList.remove("drag");}));
+  drop.addEventListener("drop",e=>{e.preventDefault();e.stopPropagation();drop.classList.remove("drag");const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];setFile(f);});
+  window.addEventListener("dragover",e=>e.preventDefault());
+  window.addEventListener("drop",e=>e.preventDefault());
+})();
+/* 화면 회전/리사이즈 시 미리보기 재스케일 */
+window.addEventListener("resize",()=>{const p=$("preview");if(p&&p.firstChild){const wrap=p.parentElement,pages=p.children.length,scale=Math.min(1,wrap.clientWidth/(297*3.78));p.style.transform="scale("+scale+")";wrap.style.height=(210*3.78*scale*pages+14*pages)+"px";}});
+
+$("run").onclick=async()=>{
+  const file=selectedFile;
+  if(!file){setStatus("원본 PDF를 선택하세요.","err");return;}
+  $("run").disabled=true;$("runlbl").innerHTML='<span class="spin"></span>변환 중… (10~40초)';
+  setStatus("PDF를 검사하는 중…","info");
+  try{
+    const buf=await file.arrayBuffer();
+    const sizeMB=buf.byteLength/1048576;
+    if(sizeMB>LIMITS.maxFileMB)throw new Error(`파일이 너무 큽니다 (${sizeMB.toFixed(1)}MB). 최대 ${LIMITS.maxFileMB}MB까지만 변환할 수 있습니다.`);
+    const pages=countPages(buf);
+    if(pages>LIMITS.maxPages)throw new Error(`페이지가 너무 많습니다 (약 ${pages}p). 최대 ${LIMITS.maxPages}p까지만 변환합니다. 보장분석 원본만 올려 주세요.`);
+    const est=estCost(pages>0?pages:LIMITS.maxPages);
+    if(est.usd>LIMITS.maxCostUSD)throw new Error(`예상 비용(약 $${est.usd.toFixed(2)})이 건당 한도 $${LIMITS.maxCostUSD.toFixed(2)}를 초과합니다. 페이지 수를 줄여 주세요.`);
+    setStatus(`데이터 추출 중… (약 ${pages||'?'}p · 예상 최대 $${est.usd.toFixed(2)} ≈ ₩${Math.round(est.usd*LIMITS.krw).toLocaleString()})`,"info");
+    const b64=base64FromBuf(buf);
+    const res=await fetch("/api/convert",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({pdfBase64:b64})});
+    let data;try{data=await res.json();}catch(e){throw new Error("서버 응답 오류 ("+res.status+")");}
+    if(!res.ok)throw new Error(data.error||("오류 "+res.status));
+    const parsed=data.data;const u=data.usage||{};
+    $("data").value=JSON.stringify(parsed,null,2);saveWork();
+    const inTok=(u.input_tokens||0)+(u.cache_read_input_tokens||0)+(u.cache_creation_input_tokens||0);
+    const cost=inTok/1e6*LIMITS.priceInPerM+(u.output_tokens||0)/1e6*LIMITS.priceOutPerM;
+    setStatus(`✓ 변환 완료 · 실제 비용 약 $${cost.toFixed(3)} (₩${Math.round(cost*LIMITS.krw).toLocaleString()}) · 입력 ${inTok.toLocaleString()} / 출력 ${(u.output_tokens||0).toLocaleString()} tok. 값을 확인·수정 후 PDF로 저장하세요.`,"ok");
+    renderProposal();
+  }catch(e){setStatus("❌ "+e.message,"err");}
+  finally{$("run").disabled=false;$("runlbl").textContent="변환 시작";}
+};
+function fileToB64(f){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(f);});}
+
+$("render").onclick=renderProposal;
+$("print").onclick=()=>{renderProposal();window.print();};
+
+function renderProposal(){
+  let d;try{d=JSON.parse($("data").value);}catch(e){setStatus("JSON 형식 오류: "+e.message,"err");return;}
+  const foot=`<div class="foot"><span><b>${esc(d.customer.name)} 보장분석</b> · ${esc(d.customer.company)}</span><span>${esc(d.customer.org)} · ${esc(d.customer.contact)} · ${esc(d.customer.analysisDate)} 기준</span></div>`;
+  const pages=[];
+  pages.push(`<div class="cover"><div class="pv">PROPOSAL</div><div class="dia"></div>
+    <div class="cv"><span class="cbadge">INSURANCE COVERAGE REPORT</span>
+    <h1>${esc(d.customer.name)}<br>보장분석 제안서</h1>
+    <div class="csub">내 모든 보험을 한 눈에 · 보기 쉽고 간단하게</div><div class="rule"></div>
+    <div class="meta">분석일자 <b>${esc(d.customer.analysisDate)}</b><br>소속 <b>${esc(d.customer.org)}</b> · ${esc(d.customer.contact)} · ${esc(d.customer.company)}</div></div>
+    <div class="stats">
+      <div class="stat"><div class="l">보유 계약</div><div class="v">${d.contracts.rows.length}건</div></div>
+      <div class="stat"><div class="l">월납보험료 합계</div><div class="v">${esc(d.contracts.totalMonthly)}</div></div>
+      <div class="stat"><div class="l">총 보험료</div><div class="v">${esc(d.summary.totalPremium)}</div></div>
+    </div></div>`);
+  pages.push(`<div class="page"><div class="head"><div class="num">01</div><div class="htitle">한 장 요약 — 보장 준비 현황 진단</div><div class="heng">Summary Dashboard</div></div>
+    <div class="body">
+     <div class="circ-wrap">
+      <div class="circ"><div class="ball" style="background:linear-gradient(135deg,#4a7fd0,#5a8fd6)"><div class="t">충분</div><div class="n">${d.summary.sufficient}<small>개</small></div></div><div class="cap">표준 대비 충족</div></div>
+      <div class="circ"><div class="ball" style="background:linear-gradient(135deg,#e0574f,#e87168)"><div class="t">부족</div><div class="n">${d.summary.insufficient}<small>개</small></div></div><div class="cap">보완 필요</div></div>
+      <div class="circ"><div class="ball" style="background:linear-gradient(135deg,#8891a8,#9aa3b2)"><div class="t">미가입</div><div class="n">${d.summary.none}<small>개</small></div></div><div class="cap">준비되지 않음</div></div>
+     </div>
+     <div class="statrow">
+      <div class="scard"><div class="v">${d.contracts.rows.length}<small>건</small></div><div class="l">보유 계약</div></div>
+      <div class="scard"><div class="v">${esc(d.summary.monthlyPremium)}</div><div class="l">월납보험료 합계</div></div>
+      <div class="scard"><div class="v">${esc(d.summary.paidRate)}</div><div class="l">납입 진행률</div></div>
+      <div class="scard alert"><div class="v">${esc(d.summary.remainingPremium)}</div><div class="l">향후 납입예정</div></div>
+     </div>
+     <div class="banner amber"><b style="color:var(--amber)">진단 요약</b><br><span style="display:inline-block;margin-top:5px">${esc(d.summary.text)}</span></div>
+    </div>${foot}</div>`);
+  let n=2;
+  for(let i=0;i<d.diagnosis.length;i+=2){
+    const grp=d.diagnosis.slice(i,i+2);
+    const cards=grp.map(g=>`<div class="card"><div class="card-title" style="font-size:16px">${esc(g.group)} <span class="tag">${esc(g.note||'')}</span></div>
+      <table><thead><tr><th>보장내용</th><th>표준</th><th>현재</th><th>상태</th></tr></thead><tbody>
+      ${g.rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.standard)}</td><td class="${numCls(r.status)}">${esc(r.current)}</td><td>${badge(r.status)}</td></tr>`).join("")}
+      </tbody></table></div>`).join("");
+    pages.push(`<div class="page"><div class="head"><div class="num">0${n}</div><div class="htitle">보장 진단 — ${esc(grp.map(g=>g.group).join(' · '))}</div><div class="heng">단위: 만원</div></div>
+      <div class="body"><div class="dgrid">${cards}</div></div>${foot}</div>`);n++;
+  }
+  pages.push(`<div class="page"><div class="head"><div class="num">0${n}</div><div class="htitle">보유 계약 현황 — ${d.contracts.rows.length}건</div><div class="heng">Contracts</div></div>
+    <div class="body"><table><thead><tr><th>회사</th><th>상품명</th><th>계약일</th><th>만기</th><th>납입</th><th>월보험료(원)</th></tr></thead><tbody>
+    ${d.contracts.rows.map(r=>`<tr><td>${esc(r.company)}</td><td style="text-align:left">${esc(r.product)}</td><td>${esc(r.contractDate)}</td><td>${esc(r.maturity)}</td><td>${esc(r.payTerm)}</td><td>${esc(r.monthly)}</td></tr>`).join("")}
+    <tr style="background:#eef4fc;font-weight:700"><td colspan="5" style="text-align:right;color:#1c2a5e">월납보험료 합계</td><td class="num-ok">${esc(d.contracts.totalMonthly)}</td></tr>
+    </tbody></table><div class="banner amber"><b>주목:</b> ${esc(d.contracts.note)}</div></div>${foot}</div>`);n++;
+  const li=a=>(a||[]).map(x=>`<li><span class="ck">✓</span> ${esc(x)}</li>`).join("");
+  pages.push(`<div class="page"><div class="head"><div class="num">0${n}</div><div class="htitle">보완 우선순위 & 다음 단계</div><div class="heng">Action Plan</div></div>
+    <div class="body"><div class="pri-wrap">
+      <div class="pri p1"><h4>1순위 · 미가입/최우선</h4><ul>${li(d.plan.p1)}</ul></div>
+      <div class="pri p2"><h4>2순위 · 부족 보완</h4><ul>${li(d.plan.p2)}</ul></div>
+      <div class="pri p3"><h4>3순위 · 생활·구조조정</h4><ul>${li(d.plan.p3)}</ul></div>
+    </div><div class="next"><h4>다음 단계</h4><p>${esc(d.plan.nextSteps)}</p></div>
+    <div style="margin-top:14px;font-size:14px;color:#5c667e">담당 <b style="color:#1c2a5e">${esc(d.customer.org)}</b> · ${esc(d.customer.contact)}</div>
+    </div>${foot}</div>`);n++;
+  pages.push(`<div class="page"><div class="head"><div class="num">0${n}</div><div class="htitle">분석자료 활용 시 유의사항</div><div class="heng">Disclaimer</div></div>
+    <div class="body"><ul class="disc">
+     <li><span class="ck">✓</span> 본 자료는 <b>${esc(d.customer.analysisDate)} 기준</b> 조회 정보로 작성되어 실제 계약과 상이할 수 있으므로 약관·증권을 참조하시기 바랍니다.</li>
+     <li><span class="ck">✓</span> 보장내용·가입금액은 <b>한국신용정보원</b> 제공 내역 기준으로 실제와 일부 상이할 수 있습니다.</li>
+     <li><span class="ck">✓</span> 표준금액은 보장 수준 가늠용 기준값이며 보험금 지급 근거가 될 수 없습니다.</li>
+     <li><span class="ck">✓</span> 회사·상품명·계약자 정보는 일부 <b>마스킹</b>되어 표기될 수 있습니다.</li>
+     <li><span class="ck">✓</span> <b>본 자료는 개인(신용)정보입니다. 제3자에게 유출되지 않도록 주의하시기 바랍니다.</b></li>
+    </ul>
+    <div style="text-align:center;margin-top:30px;color:#9aa3b2;font-size:14px;background:#f6f8fc;border-radius:12px;padding:16px">${esc(d.customer.name)} 보장분석 · ${esc(d.customer.analysisDate)} · ${esc(d.customer.org)}(${esc(d.customer.contact)}) · ${esc(d.customer.company)}</div>
+    </div>${foot}</div>`);
+
+  const html=pages.join("");
+  $("proposal").innerHTML=html;$("preview").innerHTML=html;
+  const wrap=$("preview").parentElement;
+  const scale=Math.min(1,wrap.clientWidth/(297*3.78));
+  $("preview").style.transform=`scale(${scale})`;$("preview").style.width=(297*3.78)+"px";
+  wrap.style.height=(210*3.78*scale*pages.length+14*pages.length)+"px";
+  $("step2").classList.add("active");$("step3").classList.add("active");saveWork();
+  $("step3").scrollIntoView({behavior:"smooth"});
+}
+
+$("sample").onclick=()=>{$("data").value=JSON.stringify(SAMPLE,null,2);setStatus("샘플 데이터를 불러왔습니다. 아래 미리보기를 확인하세요.","ok");renderProposal();};
+/* 작업물 자동 저장 · 복원 · 초기화 */
+$("data").addEventListener("input",saveWork);
+$("reset").onclick=()=>{try{localStorage.removeItem(LS_DATA);}catch(e){}$("data").value="";$("proposal").innerHTML="";$("preview").innerHTML="";$("step2").classList.remove("active");$("step3").classList.remove("active");selectedFile=null;const dp=$("drop");if(dp)dp.classList.remove("has");const fn=$("fileName");if(fn)fn.textContent="모바일에서는 파일·드라이브·사진 앱에서 PDF를 고를 수 있어요";setStatus("작업물을 초기화했습니다.","ok");};
+(function(){try{const saved=localStorage.getItem(LS_DATA);if(saved&&saved.trim()){JSON.parse(saved);$("data").value=saved;renderProposal();setStatus("이전 작업물을 복원했습니다. (지우려면 '초기화')","info");}}catch(e){}})();
+const SAMPLE={
+ customer:{name:"고객님",analysisDate:"2026.08.13",company:"롯데손해보험",org:"메타리치 · GA2",contact:"010-7934-1823"},
+ summary:{sufficient:18,insufficient:13,none:6,monthlyPremium:"317,473원",totalPremium:"99,643,680원",paidRate:"18%",remainingPremium:"81,870,423원",
+  text:"실손·운전자·일상배상 등 기본·생활보장은 충분하나, 간병(치매·요양)이 전액 미가입이고 암·뇌·심장 수술비와 진단비가 부족합니다. 신규 3계약 중심(납입 18%) 구조로 미가입·부족 담보의 우선 보완이 필요합니다."},
+ diagnosis:[
+  {group:"사망·후유장해",note:"사망 부족",rows:[
+   {name:"상해사망",standard:"20,000",current:"10,000",status:"부족"},{name:"질병사망",standard:"10,000",current:"6,000",status:"부족"},
+   {name:"상해후유장해(3%)",standard:"5,000",current:"13,000",status:"충분"},{name:"질병후유장해(3%)",standard:"3,000",current:"0",status:"미가입"}]},
+  {group:"암·뇌·심장",note:"수술비 공백",rows:[
+   {name:"일반암진단비",standard:"3,000",current:"1,500",status:"부족"},{name:"유사암진단비",standard:"1,000",current:"200",status:"부족"},
+   {name:"암수술비",standard:"300",current:"0",status:"미가입"},{name:"뇌혈관진단비",standard:"1,000",current:"500",status:"부족"},
+   {name:"뇌혈관수술비",standard:"1,000",current:"0",status:"미가입"},{name:"급성심근경색진단비",standard:"2,000",current:"1,500",status:"부족"},
+   {name:"심장질환수술비",standard:"1,000",current:"0",status:"미가입"}]},
+  {group:"의료·수술·입원",note:"실손 충족",rows:[
+   {name:"질병입원 실손",standard:"5,000",current:"5,000",status:"충분"},{name:"상해수술비",standard:"100",current:"50",status:"부족"},
+   {name:"질병입원(1일)",standard:"3",current:"1",status:"부족"}]},
+  {group:"요양·치매",note:"전액 미가입",rows:[
+   {name:"경증이상 치매진단비",standard:"1,000",current:"0",status:"미가입"},{name:"장기요양자금(1~4급)",standard:"2,000",current:"0",status:"미가입"}]},
+  {group:"운전자·생활",note:"대체로 충분",rows:[
+   {name:"교통사고처리지원금",standard:"20,000",current:"20,000",status:"충분"},{name:"변호사선임비용",standard:"5,000",current:"500",status:"부족"},
+   {name:"일상생활배상책임",standard:"10,000",current:"10,000",status:"충분"}]}
+ ],
+ contracts:{rows:[
+   {company:"롯데손해보험",product:"종합보험 (상품코드 2604)",contractDate:"2026/06",maturity:"2085.06 만기",payTerm:"30년납",monthly:"195,418"},
+   {company:"롯데손해보험",product:"보장성보험 (상품코드 2604)",contractDate:"2026/06",maturity:"2046.06 만기",payTerm:"20년납",monthly:"10,475"},
+   {company:"(마스킹)",product:"건강보험 (Hi1308)",contractDate:"2014/01",maturity:"2085.01 만기",payTerm:"20년납",monthly:"111,580"}],
+  totalMonthly:"317,473",note:"3건 중 2건이 2026년 6월 신규 가입 계약으로 납입 진행률 18%. 신규 계약 중심 구조에서 간병·수술비 미가입 담보 보완 여부 점검 필요."},
+ plan:{
+  p1:["장기요양자금(1~4급) 신설","경증이상 치매진단비 신설","암·뇌혈관·심장 수술비 신설","질병후유장해(3%) 추가"],
+  p2:["사망(상해·질병) 보완","일반암·유사암 진단비 상향","뇌혈관·급성심근경색 진단비 보완","상해수술비 보완"],
+  p3:["변호사선임비용 상향","부상위로금 보완","신규 3계약 납입여력 점검","보험료 대비 보장 최적화"],
+  nextSteps:"① 간병(치매·요양)·수술비 우선 설계 → ② 암·뇌·심장 진단비 부족분 보완 → ③ 사망·생활보장 정비 → ④ 신규 3계약 납입여력 점검 후 최적화"}
+};
+</script>
+</body>
+</html>
