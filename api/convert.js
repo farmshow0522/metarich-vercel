@@ -43,6 +43,27 @@ const SYSTEM = `너는 보험 보장분석 원본 PDF를 구조화 데이터로 
 - summary.text, plan.nextSteps, note는 한국어 한두 문장.
 - plan.p1=미가입/최우선, p2=부족 보완, p3=생활·구조조정 (각 3~5개).`;
 
+const path = require("path");
+// PDF 텍스트를 pdfjs + cMap으로 추출 — 나눔고딕 CID 등 ToUnicode가 없어 이미지로는 안 읽히는
+// 회사명·상품명·설계사·고객명을 디코딩해 Claude에 함께 넘긴다. 실패해도 빈 문자열 반환(PDF만으로 진행).
+async function extractPdfText(buf) {
+  try {
+    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    const cMapUrl = path.join(path.dirname(require.resolve("pdfjs-dist/package.json")), "cmaps") + path.sep;
+    const doc = await pdfjs.getDocument({ data: new Uint8Array(buf), cMapUrl, cMapPacked: true, isEvalSupported: false, disableFontFace: true, verbosity: 0 }).promise;
+    const parts = [];
+    const N = Math.min(doc.numPages, LIMITS.maxPages);
+    for (let p = 1; p <= N; p++) {
+      const page = await doc.getPage(p);
+      const tc = await page.getTextContent();
+      const t = tc.items.map((i) => i.str).join(" ").replace(/[ \t]+/g, " ").trim();
+      if (t) parts.push("[p" + p + "] " + t);
+    }
+    try { await doc.destroy(); } catch (_) {}
+    return parts.join("\n");
+  } catch (e) { return ""; }
+}
+
 module.exports = async (req, res) => {
   if (req.method === "OPTIONS") { res.status(204).end(); return; }
   if (req.method !== "POST") { res.status(405).json({ error: "POST 요청만 허용됩니다." }); return; }
@@ -63,6 +84,14 @@ module.exports = async (req, res) => {
   if (m) pages = Math.max(pages, parseInt(m[1], 10));
   if (pages > LIMITS.maxPages) { res.status(413).json({ error: `페이지가 너무 많습니다 (약 ${pages}p). 최대 ${LIMITS.maxPages}p까지만 변환합니다.` }); return; }
 
+  let pdfText = "";
+  try { pdfText = await extractPdfText(buf); } catch (_) {}
+
+  const content = [{ type: "document", source: { type: "base64", media_type: "application/pdf", data: pdfBase64 } }];
+  if (pdfText) content.push({ type: "text", text:
+    "아래는 같은 PDF에서 폰트(cMap)로 디코딩해 추출한 원문 텍스트다. PDF 이미지에서 글자가 깨져 회사명·상품명·설계사·고객명이 안 읽힐 때 이 텍스트를 우선 신뢰해 정확히 채워라(특히 contracts의 company·product, customer.org·name). 표·수치의 행 배치는 PDF 이미지를 참고한다.\n\n<추출텍스트>\n" + pdfText.slice(0, 40000) + "\n</추출텍스트>" });
+  content.push({ type: "text", text: "이 보장분석 원본에서 데이터를 추출해 emit_analysis 도구로 반환해줘." });
+
   const body = {
     model: MODEL, max_tokens: LIMITS.maxTokensOut,
     thinking: { type: "disabled" },
@@ -70,10 +99,7 @@ module.exports = async (req, res) => {
     system: [{ type: "text", text: SYSTEM, cache_control: { type: "ephemeral" } }],
     tools: [{ name: "emit_analysis", description: "추출한 보장분석 데이터를 반환", input_schema: SCHEMA }],
     tool_choice: { type: "tool", name: "emit_analysis" },
-    messages: [{ role: "user", content: [
-      { type: "document", source: { type: "base64", media_type: "application/pdf", data: pdfBase64 } },
-      { type: "text", text: "이 보장분석 원본에서 데이터를 추출해 emit_analysis 도구로 반환해줘." }
-    ] }]
+    messages: [{ role: "user", content }]
   };
 
   let r, data;

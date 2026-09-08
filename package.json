@@ -1,0 +1,8 @@
+{
+  "name": "metarich-vercel",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "pdfjs-dist": "4.7.76"
+  }
+}
