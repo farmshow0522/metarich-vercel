@@ -58,6 +58,11 @@ async function extractPdfText(buf) {
   const dbg = { cmapDir: "", pages: 0, err: "" };
   try {
     const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    // Vercel 번들에 워커가 트레이스 안 돼 "fake worker" 로드가 실패함 → api/ 에 동봉한 워커를 명시
+    try {
+      const w = path.join(__dirname, "pdf.worker.mjs");
+      if (fs.existsSync(w)) pdfjs.GlobalWorkerOptions.workerSrc = w;
+    } catch (_) {}
     const dir = findCmapDir(); dbg.cmapDir = dir;
     const doc = await pdfjs.getDocument({ data: new Uint8Array(buf), cMapUrl: dir + path.sep, cMapPacked: true, isEvalSupported: false, disableFontFace: true, verbosity: 0 }).promise;
     const parts = [];

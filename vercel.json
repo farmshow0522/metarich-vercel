@@ -2,7 +2,7 @@
   "functions": {
     "api/convert.js": {
       "maxDuration": 120,
-      "includeFiles": "api/cmaps/**"
+      "includeFiles": "api/**"
     }
   }
 }
