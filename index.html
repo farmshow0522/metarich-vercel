@@ -115,6 +115,64 @@ tbody tr:nth-child(even){background:#f8fafd;}
 .next h4{font-size:17px;margin-bottom:7px;}.next p{font-size:13.5px;line-height:1.6;}
 .disc li{list-style:none;display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed #eef1f7;font-size:13.5px;line-height:1.55;color:#4a5270;}
 .disc .ck{color:var(--teal);font-weight:900;}.disc b{color:#1c2a5e;}
+.card-desc{font-size:12px;color:#5c667e;line-height:1.45;margin:-4px 0 10px;}
+
+/* ===== 01 간편보장분석 (5열) ===== */
+.simple .sbar{height:44px;background:linear-gradient(100deg,#1a2550,#233069 55%,#4a3c78);display:flex;align-items:center;padding:0 24px;color:#fff;}
+.simple .sbar .t1{font-size:16px;font-weight:800;}
+.simple .sbar .bar-div{margin:0 11px;color:#28c2c8;}
+.simple .sbar .t2{font-size:15px;font-weight:500;opacity:.95;}
+.simple .sbar .pg{margin-left:auto;font-size:13px;font-weight:700;color:#aeb9dd;border:1px solid rgba(174,185,221,.4);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+.simple .content{padding:13px 22px 0;}
+.simple .tophead{display:flex;align-items:flex-start;gap:18px;margin-bottom:10px;}
+.simple .title{font-size:23px;font-weight:900;color:var(--navy);line-height:1.26;letter-spacing:-.5px;flex:1;}
+.simple .title small{display:block;font-size:12.5px;font-weight:600;color:#8a93a6;margin-top:3px;}
+.simple .summary-wrap{display:flex;gap:12px;}
+.simple .sbox{background:#eef3fb;border:1px solid #dbe6f6;border-radius:14px;padding:10px 15px;display:flex;align-items:center;gap:13px;}
+.simple .sbox .lab{font-size:13.5px;font-weight:800;color:#1c2a5e;white-space:nowrap;}
+.simple .gauges{display:flex;gap:7px;}
+.simple .gchip{background:#fff;border-radius:11px;padding:6px 11px;text-align:center;min-width:66px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.simple .gchip .gtop{display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:700;}
+.simple .gchip .ring{width:12px;height:12px;border-radius:50%;border:3px solid;}
+.simple .gchip.none .gtop{color:var(--gray);}.simple .gchip.none .ring{border-color:var(--gray);border-right-color:#e3e7ee;}
+.simple .gchip.bad .gtop{color:var(--red);}.simple .gchip.bad .ring{border-color:var(--red);border-bottom-color:#f3c9c6;}
+.simple .gchip.ok .gtop{color:#4a7fd0;}.simple .gchip.ok .ring{border-color:#4a7fd0;border-top-color:#cfe0f5;}
+.simple .gchip .gnum{font-size:19px;font-weight:900;margin-top:2px;}
+.simple .gchip.none .gnum{color:var(--gray);}.simple .gchip.bad .gnum{color:var(--red);}.simple .gchip.ok .gnum{color:#4a7fd0;}
+.simple .sumbox{flex-direction:column;align-items:stretch;gap:4px;justify-content:center;min-width:170px;}
+.simple .sumbox .line{display:flex;justify-content:space-between;align-items:baseline;gap:14px;}
+.simple .sumbox .k{font-size:12.5px;font-weight:800;color:#1c2a5e;}
+.simple .sumbox .v{font-size:17px;font-weight:900;color:var(--navy);}
+.simple .sumbox .v small{font-size:11.5px;font-weight:700;margin-left:2px;}
+.simple .sumbox .v.alert{color:var(--red);}
+.simple .cols{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.simple .col{border:1px solid #e7ebf3;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 3px 10px rgba(30,45,90,.05);}
+.simple .col .chead{padding:7px 10px;display:flex;align-items:center;gap:5px;color:#fff;flex-wrap:nowrap;}
+.simple .col .chead .ico{flex:0 0 auto;font-size:12px;}
+.simple .col .chead .ct{font-size:12.5px;font-weight:800;white-space:nowrap;flex:0 0 auto;}
+.simple .col .chead .cs{font-size:9px;font-weight:500;opacity:.92;margin-left:auto;white-space:nowrap;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;}
+.simple .col.c1 .chead{background:#5a8fd6;}.simple .col.c1{border-color:#cdddf5;}
+.simple .col.c2 .chead{background:#1f2d5c;}.simple .col.c2{border-color:#c4cce4;}
+.simple .col.c3 .chead{background:#1f9aa0;}.simple .col.c3{border-color:#bce6df;}
+.simple .col.c4 .chead{background:#5b4a8f;}.simple .col.c4{border-color:#d3cbe6;}
+.simple .col.c5 .chead{background:#c0892e;}.simple .col.c5{border-color:#ecd8b4;}
+.simple .cbody{padding:4px 12px 6px;}
+.simple .item{padding:4.5px 0;border-bottom:1px solid #f1f4f9;}
+.simple .item:last-child{border-bottom:none;}
+.simple .item .r1{display:flex;justify-content:space-between;align-items:baseline;gap:6px;}
+.simple .item .nm{font-size:11px;font-weight:700;color:#33415c;line-height:1.2;}
+.simple .item .pct{font-size:10.8px;font-weight:800;white-space:nowrap;}
+.simple .item .r2{margin:3.5px 0 2.5px;}
+.simple .item .track{height:4.5px;border-radius:5px;background:#eef1f6;overflow:hidden;}
+.simple .item .fill{height:100%;border-radius:5px;}
+.simple .item .r3{display:flex;justify-content:space-between;font-size:10px;color:#8a93a6;gap:4px;}
+.simple .st-none .pct{color:var(--gray);}.simple .st-none .fill{background:var(--gray);}
+.simple .st-bad .pct{color:var(--red);}.simple .st-bad .fill{background:var(--red);}
+.simple .st-ok .pct{color:#4a7fd0;}.simple .st-ok .fill{background:#4a7fd0;}
+.simple .pfoot{position:absolute;left:22px;right:22px;bottom:10px;border-top:1px solid #e7ebf3;padding-top:6px;display:flex;justify-content:space-between;font-size:11px;color:#8a93a6;}
+.simple .pfoot b{color:var(--navy);}
+.simple .cols.d-compact .item{padding:3px 0;}.simple .cols.d-compact .item .r2{margin:3px 0 2px;}.simple .cols.d-compact .item .nm{font-size:10.3px;}.simple .cols.d-compact .item .pct{font-size:10px;}.simple .cols.d-compact .item .r3{font-size:9.3px;}
+.simple .cols.d-tiny .item{padding:2px 0;}.simple .cols.d-tiny .item .r2{margin:2.5px 0 1.5px;}.simple .cols.d-tiny .item .nm{font-size:9.4px;line-height:1.15;}.simple .cols.d-tiny .item .pct{font-size:9px;}.simple .cols.d-tiny .item .r3{font-size:8.6px;}.simple .cols.d-tiny .item .track{height:4px;}
 
 @media print{
   body{background:#fff;}
@@ -226,6 +284,26 @@ const esc=s=>String(s==null?"":s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','
 function setStatus(m,t){const e=$("st");e.className="status show "+(t||"info");e.innerHTML=m;}
 function numCls(s){if(["충분","초과","충족"].includes(s))return 'num-ok';if(s==="부족")return 'num-bad';return '';}
 function badge(s){const c=["충분","초과","충족"].includes(s)?'b-ok':(s==="부족"?'b-bad':'b-gray');return `<span class="badge ${c}">${esc(s)}</span>`;}
+/* ===== 간편보장분석(5열) 유틸 ===== */
+function fmtWon(v){var man=parseInt(String(v==null?"":v).replace(/[^0-9]/g,''),10);if(isNaN(man)||man<=0)return "0원";var eok=Math.floor(man/10000),rest=man%10000;if(eok>0)return rest>0?eok+"억"+rest.toLocaleString()+"만원":eok+"억원";return man.toLocaleString()+"만원";}
+function stKey(s){return s==="미가입"?"none":(s==="부족"?"bad":"ok");}
+function toNum(v){var n=parseInt(String(v==null?"":v).replace(/[^0-9]/g,''),10);return isNaN(n)?0:n;}
+function pctOf(std,cur,st){if(st==="none")return 0;var s=toNum(std);if(!s)return 100;return Math.max(0,Math.min(100,Math.round(toNum(cur)/s*100)));}
+const STL={none:"미가입",bad:"부족",ok:"충분"};
+/* 진단 항목을 5열(가족/암/뇌·심장/의료수술/운전자)로 항목명 키워드 기반 분류 — 어떤 분석지든 대응 */
+function build5(diag){var all=[];(diag||[]).forEach(function(g){(g.rows||[]).forEach(function(r){all.push(r);});});
+ function has(n,kws){n=n||"";for(var i=0;i<kws.length;i++)if(n.indexOf(kws[i])>=0)return true;return false;}
+ var cancer=all.filter(function(r){return has(r.name,["암"]);});
+ var brain=all.filter(function(r){return !has(r.name,["암"])&&has(r.name,["뇌","심장","심근","허혈"]);});
+ var death=all.filter(function(r){return !has(r.name,["암"])&&has(r.name,["사망","후유장해"]);});
+ var driver=all.filter(function(r){return has(r.name,["교통","자동차","벌금","운전","일상생활","응급실","골절","깁스","화재","변호사","배상","부상위로"]);});
+ var used=[];[cancer,brain,death,driver].forEach(function(a){a.forEach(function(r){used.push(r);});});
+ var med=all.filter(function(r){return used.indexOf(r)<0;});
+ return [{cls:"c1",icon:"❤️",title:"가족 보장",sub:"사망·후유장해",rows:death},
+  {cls:"c2",icon:"🎗️",title:"암 보장",sub:"진단·수술·치료",rows:cancer},
+  {cls:"c3",icon:"🫀",title:"뇌·심장 보장",sub:"뇌혈관·심장질환",rows:brain},
+  {cls:"c4",icon:"💊",title:"의료/수술 보장",sub:"실손·수술·입원·간병",rows:med},
+  {cls:"c5",icon:"🚗",title:"운전자/비용",sub:"운전자·기타비용",rows:driver}];}
 
 
 /* ===== 업로드: 드래그&드롭 + 모바일 탭 ===== */
@@ -284,7 +362,7 @@ $("print").onclick=()=>{renderProposal();window.print();};
 
 function renderProposal(){
   let d;try{d=JSON.parse($("data").value);}catch(e){setStatus("JSON 형식 오류: "+e.message,"err");return;}
-  const foot=`<div class="foot"><span><b>${esc(d.customer.name)} 보장분석</b> · ${esc(d.customer.company)}</span><span>${esc(d.customer.org)} · ${esc(d.customer.contact)} · ${esc(d.customer.analysisDate)} 기준</span></div>`;
+  const foot=`<div class="foot"><span><b>${esc(d.customer.name)} 보장분석</b> · 메타리치</span><span>담당 ${esc(d.customer.org)} · ☎ ${esc(d.customer.contact)} · ${esc(d.customer.analysisDate)} 기준</span></div>`;
   const pages=[];
   pages.push(`<div class="cover"><div class="pv">PROPOSAL</div><div class="dia"></div>
     <div class="cv"><span class="cbadge">INSURANCE COVERAGE REPORT</span>
@@ -296,25 +374,17 @@ function renderProposal(){
       <div class="stat"><div class="l">월납보험료 합계</div><div class="v">${esc(d.contracts.totalMonthly)}</div></div>
       <div class="stat"><div class="l">총 보험료</div><div class="v">${esc(d.summary.totalPremium)}</div></div>
     </div></div>`);
-  pages.push(`<div class="page"><div class="head"><div class="num">01</div><div class="htitle">한 장 요약 — 보장 준비 현황 진단</div><div class="heng">Summary Dashboard</div></div>
-    <div class="body">
-     <div class="circ-wrap">
-      <div class="circ"><div class="ball" style="background:linear-gradient(135deg,#4a7fd0,#5a8fd6)"><div class="t">충분</div><div class="n">${d.summary.sufficient}<small>개</small></div></div><div class="cap">표준 대비 충족</div></div>
-      <div class="circ"><div class="ball" style="background:linear-gradient(135deg,#e0574f,#e87168)"><div class="t">부족</div><div class="n">${d.summary.insufficient}<small>개</small></div></div><div class="cap">보완 필요</div></div>
-      <div class="circ"><div class="ball" style="background:linear-gradient(135deg,#8891a8,#9aa3b2)"><div class="t">미가입</div><div class="n">${d.summary.none}<small>개</small></div></div><div class="cap">준비되지 않음</div></div>
-     </div>
-     <div class="statrow">
-      <div class="scard"><div class="v">${d.contracts.rows.length}<small>건</small></div><div class="l">보유 계약</div></div>
-      <div class="scard"><div class="v">${esc(d.summary.monthlyPremium)}</div><div class="l">월납보험료 합계</div></div>
-      <div class="scard"><div class="v">${esc(d.summary.paidRate)}</div><div class="l">납입 진행률</div></div>
-      <div class="scard alert"><div class="v">${esc(d.summary.remainingPremium)}</div><div class="l">향후 납입예정</div></div>
-     </div>
-     <div class="banner amber"><b style="color:var(--amber)">진단 요약</b><br><span style="display:inline-block;margin-top:5px">${esc(d.summary.text)}</span></div>
-    </div>${foot}</div>`);
+  var cnt={none:0,bad:0,ok:0};
+  (d.diagnosis||[]).forEach(function(g){(g.rows||[]).forEach(function(r){cnt[stKey(r.status)]++;});});
+  var cols5=build5(d.diagnosis);
+  var maxc=Math.max.apply(null,cols5.map(function(c){return c.rows.length;}).concat([0]));
+  var dens=maxc>=15?"d-tiny":(maxc>=11?"d-compact":"");
+  var colHtml=cols5.map(function(c){return '<div class="col '+c.cls+'"><div class="chead"><span class="ico">'+c.icon+'</span><span class="ct">'+esc(c.title)+'</span><span class="cs">'+esc(c.sub)+'</span></div><div class="cbody">'+c.rows.map(function(r){var st=stKey(r.status);var dp=pctOf(r.standard,r.current,st);return '<div class="item st-'+st+'"><div class="r1"><span class="nm">'+esc(r.name)+'</span><span class="pct">'+STL[st]+' '+dp+'%</span></div><div class="r2"><div class="track"><div class="fill" style="width:'+dp+'%"></div></div></div><div class="r3"><span>보장 '+fmtWon(r.current)+'</span><span>권장 '+fmtWon(r.standard)+'</span></div></div>';}).join("")+'</div></div>';}).join("");
+  pages.push('<div class="page simple"><div class="sbar"><span class="t1">보장분석</span><span class="bar-div">|</span><span class="t2">간편보장분석</span><span class="pg">01</span></div><div class="content"><div class="tophead"><div class="title">'+esc(d.customer.name)+' 간편보장분석<small>한장 보장현황 · 표준(권장) 대비 현재 가입 진단</small></div><div class="summary-wrap"><div class="sbox"><div class="lab">보장현황</div><div class="gauges"><div class="gchip none"><div class="gtop"><span>미가입</span><span class="ring"></span></div><div class="gnum">'+cnt.none+'</div></div><div class="gchip bad"><div class="gtop"><span>부족</span><span class="ring"></span></div><div class="gnum">'+cnt.bad+'</div></div><div class="gchip ok"><div class="gtop"><span>충분</span><span class="ring"></span></div><div class="gnum">'+cnt.ok+'</div></div></div></div><div class="sbox sumbox"><div class="line"><span class="k">진단 담보</span><span class="v">'+(cnt.none+cnt.bad+cnt.ok)+'<small>개</small></span></div><div class="line"><span class="k">보완 필요</span><span class="v alert">'+(cnt.none+cnt.bad)+'<small>개</small></span></div></div></div></div><div class="cols '+dens+'">'+colHtml+'</div></div><div class="pfoot"><span>담당 <b>'+esc(d.customer.org)+'</b></span><span>☎ '+esc(d.customer.contact)+' · 분석일자 '+esc(d.customer.analysisDate)+'</span></div></div>');
   let n=2;
   for(let i=0;i<d.diagnosis.length;i+=2){
     const grp=d.diagnosis.slice(i,i+2);
-    const cards=grp.map(g=>`<div class="card"><div class="card-title" style="font-size:16px">${esc(g.group)} <span class="tag">${esc(g.note||'')}</span></div>
+    const cards=grp.map(g=>`<div class="card"><div class="card-title" style="font-size:16px">${esc(g.group)}</div><div class="card-desc">${esc(g.note||'')}</div>
       <table><thead><tr><th>보장내용</th><th>표준</th><th>현재</th><th>상태</th></tr></thead><tbody>
       ${g.rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.standard)}</td><td class="${numCls(r.status)}">${esc(r.current)}</td><td>${badge(r.status)}</td></tr>`).join("")}
       </tbody></table></div>`).join("");
@@ -338,12 +408,11 @@ function renderProposal(){
   pages.push(`<div class="page"><div class="head"><div class="num">0${n}</div><div class="htitle">분석자료 활용 시 유의사항</div><div class="heng">Disclaimer</div></div>
     <div class="body"><ul class="disc">
      <li><span class="ck">✓</span> 본 자료는 <b>${esc(d.customer.analysisDate)} 기준</b> 조회 정보로 작성되어 실제 계약과 상이할 수 있으므로 약관·증권을 참조하시기 바랍니다.</li>
-     <li><span class="ck">✓</span> 보장내용·가입금액은 <b>한국신용정보원</b> 제공 내역 기준으로 실제와 일부 상이할 수 있습니다.</li>
-     <li><span class="ck">✓</span> 표준금액은 보장 수준 가늠용 기준값이며 보험금 지급 근거가 될 수 없습니다.</li>
-     <li><span class="ck">✓</span> 회사·상품명·계약자 정보는 일부 <b>마스킹</b>되어 표기될 수 있습니다.</li>
+     <li><span class="ck">✓</span> 표준(권장)금액은 보장 수준 가늠용 기준값이며 보험금 지급 근거가 될 수 없습니다.</li>
+     <li><span class="ck">✓</span> 진단표 수치는 <b>만원 단위</b>이며, 회사·상품명·계약자 정보는 일부 <b>마스킹</b>되어 표기될 수 있습니다.</li>
      <li><span class="ck">✓</span> <b>본 자료는 개인(신용)정보입니다. 제3자에게 유출되지 않도록 주의하시기 바랍니다.</b></li>
     </ul>
-    <div style="text-align:center;margin-top:30px;color:#9aa3b2;font-size:14px;background:#f6f8fc;border-radius:12px;padding:16px">${esc(d.customer.name)} 보장분석 · ${esc(d.customer.analysisDate)} · ${esc(d.customer.org)}(${esc(d.customer.contact)}) · ${esc(d.customer.company)}</div>
+    <div style="text-align:center;margin-top:30px;color:#9aa3b2;font-size:14px;background:#f6f8fc;border-radius:12px;padding:16px">${esc(d.customer.name)} 보장분석 · ${esc(d.customer.analysisDate)} · 담당 ${esc(d.customer.org)} · ☎ ${esc(d.customer.contact)} · 메타리치</div>
     </div>${foot}</div>`);
 
   const html=pages.join("");
@@ -362,37 +431,45 @@ $("data").addEventListener("input",saveWork);
 $("reset").onclick=()=>{try{localStorage.removeItem(LS_DATA);}catch(e){}$("data").value="";$("proposal").innerHTML="";$("preview").innerHTML="";$("step2").classList.remove("active");$("step3").classList.remove("active");selectedFile=null;const dp=$("drop");if(dp)dp.classList.remove("has");const fn=$("fileName");if(fn)fn.textContent="모바일에서는 파일·드라이브·사진 앱에서 PDF를 고를 수 있어요";setStatus("작업물을 초기화했습니다.","ok");};
 (function(){try{const saved=localStorage.getItem(LS_DATA);if(saved&&saved.trim()){JSON.parse(saved);$("data").value=saved;renderProposal();setStatus("이전 작업물을 복원했습니다. (지우려면 '초기화')","info");}}catch(e){}})();
 const SAMPLE={
- customer:{name:"김*섭 고객님",analysisDate:"2026.08.13",company:"롯데손해보험",org:"김광섭(제주센트럴/(주)메타리치)",contact:"010-7934-1823"},
- summary:{sufficient:18,insufficient:13,none:6,monthlyPremium:"317,473원",totalPremium:"99,643,680원",paidRate:"18%",remainingPremium:"81,870,423원",
-  text:"실손·운전자·일상배상 등 기본·생활보장은 충분하나, 간병(치매·요양)이 전액 미가입이고 암·뇌·심장 수술비와 진단비가 부족합니다. 신규 3계약 중심(납입 18%) 구조로 미가입·부족 담보의 우선 보완이 필요합니다."},
+ customer:{name:"김*섭 고객님",analysisDate:"2026.08.13",company:"한화손해보험",org:"김광섭(제주센트럴/(주)메타리치)",contact:"010-7934-1823"},
+ summary:{sufficient:18,insufficient:12,none:6,monthlyPremium:"317,473원",totalPremium:"99,643,680원",paidRate:"18%",remainingPremium:"81,870,423원",
+  text:"실손·간병·운전자 등 생활보장은 충분하나, 암·뇌·심장 수술비와 요양·치매가 미가입이고 일반·유사암 진단비, 상해수술·입원비가 부족합니다."},
  diagnosis:[
-  {group:"사망·후유장해",note:"사망 부족",rows:[
-   {name:"상해사망",standard:"20,000",current:"10,000",status:"부족"},{name:"질병사망",standard:"10,000",current:"6,000",status:"부족"},
-   {name:"상해후유장해(3%)",standard:"5,000",current:"13,000",status:"충분"},{name:"질병후유장해(3%)",standard:"3,000",current:"0",status:"미가입"}]},
-  {group:"암·뇌·심장",note:"수술비 공백",rows:[
-   {name:"일반암진단비",standard:"3,000",current:"1,500",status:"부족"},{name:"유사암진단비",standard:"1,000",current:"200",status:"부족"},
-   {name:"암수술비",standard:"300",current:"0",status:"미가입"},{name:"뇌혈관진단비",standard:"1,000",current:"500",status:"부족"},
-   {name:"뇌혈관수술비",standard:"1,000",current:"0",status:"미가입"},{name:"급성심근경색진단비",standard:"2,000",current:"1,500",status:"부족"},
-   {name:"심장질환수술비",standard:"1,000",current:"0",status:"미가입"}]},
-  {group:"의료·수술·입원",note:"실손 충족",rows:[
-   {name:"질병입원 실손",standard:"5,000",current:"5,000",status:"충분"},{name:"상해수술비",standard:"100",current:"50",status:"부족"},
-   {name:"질병입원(1일)",standard:"3",current:"1",status:"부족"}]},
-  {group:"요양·치매",note:"전액 미가입",rows:[
-   {name:"경증이상 치매진단비",standard:"1,000",current:"0",status:"미가입"},{name:"장기요양자금(1~4급)",standard:"2,000",current:"0",status:"미가입"}]},
-  {group:"운전자·생활",note:"대체로 충분",rows:[
-   {name:"교통사고처리지원금",standard:"20,000",current:"20,000",status:"충분"},{name:"변호사선임비용",standard:"5,000",current:"500",status:"부족"},
+  {group:"사망·후유장해",note:"상해·질병 사망 모두 표준 대비 부족하고, 질병3% 후유장해는 미가입입니다.",rows:[
+   {name:"사망(상해)",standard:"20,000",current:"10,000",status:"부족"},{name:"사망(질병)",standard:"10,000",current:"6,000",status:"부족"},
+   {name:"후유장해3%(상해)",standard:"5,000",current:"13,000",status:"충분"},{name:"후유장해3%(질병)",standard:"3,000",current:"-",status:"미가입"}]},
+  {group:"암·뇌혈관·심장",note:"전이암·고액항암치료비는 충분하나 일반·유사암 진단비 부족, 암·뇌·심장 수술비가 미가입입니다.",rows:[
+   {name:"일반암 진단비",standard:"3,000",current:"1,500",status:"부족"},{name:"유사암 진단비",standard:"1,000",current:"200",status:"부족"},
+   {name:"전이암 진단비",standard:"2,000",current:"12,000",status:"충분"},{name:"암수술비",standard:"300",current:"-",status:"미가입"},
+   {name:"고액항암치료비",standard:"7,000",current:"15,000",status:"충분"},{name:"뇌혈관 진단비",standard:"1,000",current:"500",status:"부족"},
+   {name:"뇌졸중 진단비",standard:"2,000",current:"1,500",status:"부족"},{name:"뇌혈관수술비",standard:"1,000",current:"-",status:"미가입"},
+   {name:"허혈성심장질환 진단비",standard:"1,000",current:"1,000",status:"충분"},{name:"급성심근경색 진단비",standard:"2,000",current:"1,500",status:"부족"},
+   {name:"심장질환수술비",standard:"1,000",current:"-",status:"미가입"}]},
+  {group:"의료·수술·입원",note:"실손·간병인 입원비는 충분하나 상해수술비·상해입원비가 부족합니다.",rows:[
+   {name:"실손의료비(상해입원)",standard:"5,000",current:"5,000",status:"충분"},{name:"실손의료비(질병입원)",standard:"5,000",current:"5,000",status:"충분"},
+   {name:"실손의료비 통원(상해)",standard:"30",current:"30",status:"충분"},{name:"실손의료비 통원(질병)",standard:"30",current:"30",status:"충분"},
+   {name:"수술비(상해)",standard:"100",current:"50",status:"부족"},{name:"수술비(질병)",standard:"30",current:"30",status:"충분"},
+   {name:"입원비(상해)",standard:"3",current:"2",status:"부족"},{name:"입원비(질병)",standard:"1",current:"1",status:"충분"},
+   {name:"간병인사용·지원 상해입원비",standard:"12",current:"20",status:"충분"},{name:"간병인사용·지원 질병입원비",standard:"12",current:"20",status:"충분"}]},
+  {group:"요양·치매",note:"장기요양자금·중증이상 치매진단비 모두 미가입입니다.",rows:[
+   {name:"장기요양자금(1~4등급)",standard:"2,000",current:"-",status:"미가입"},{name:"중증이상 치매진단비",standard:"1,000",current:"-",status:"미가입"}]},
+  {group:"운전자·생활",note:"교통사고처리·벌금·화재벌금·일상배상은 충분하나 부상위로금·응급실·깁스가 부족합니다.",rows:[
+   {name:"교통사고처리지원금",standard:"20,000",current:"20,000",status:"충분"},{name:"교통사고 벌금(대인)",standard:"3,000",current:"3,000",status:"충분"},
+   {name:"교통사고 벌금(대물)",standard:"500",current:"500",status:"충분"},{name:"자동차사고 부상위로금(14급)",standard:"5,000",current:"500",status:"부족"},
+   {name:"응급실내원비",standard:"30",current:"5",status:"부족"},{name:"골절진단비",standard:"5",current:"5",status:"충분"},
+   {name:"깁스치료비",standard:"30",current:"10",status:"부족"},{name:"화재벌금",standard:"2,000",current:"2,000",status:"충분"},
    {name:"일상생활배상책임",standard:"10,000",current:"10,000",status:"충분"}]}
  ],
  contracts:{rows:[
-   {company:"롯데손해보험",product:"종합보험 (상품코드 2604)",contractDate:"2026/06",maturity:"2085.06 만기",payTerm:"30년납",monthly:"195,418"},
-   {company:"롯데손해보험",product:"보장성보험 (상품코드 2604)",contractDate:"2026/06",maturity:"2046.06 만기",payTerm:"20년납",monthly:"10,475"},
-   {company:"(마스킹)",product:"건강보험 (Hi1308)",contractDate:"2014/01",maturity:"2085.01 만기",payTerm:"20년납",monthly:"111,580"}],
-  totalMonthly:"317,473",note:"3건 중 2건이 2026년 6월 신규 가입 계약으로 납입 진행률 18%. 신규 계약 중심 구조에서 간병·수술비 미가입 담보 보완 여부 점검 필요."},
+   {company:"한화손해보험",product:"한화 더 경증 간편건강보험Ⅱ(세만기형) 무배당2604",contractDate:"2026/06",maturity:"2085.06 만기",payTerm:"30년납",monthly:"195,418"},
+   {company:"한화손해보험",product:"한화 운전자상해보험 무배당2604",contractDate:"2026/06",maturity:"2046.06 만기",payTerm:"20년납",monthly:"10,475"},
+   {company:"현대해상",product:"무배당퍼펙트N종합보험(Hi1308) 기본플랜",contractDate:"2014/01",maturity:"2085.01 만기",payTerm:"20년납",monthly:"111,580"}],
+  totalMonthly:"317,473",note:"3건 중 2건이 2026년 6월 신규 가입 계약(납입 진행률 낮음). 현대해상 종합보험만 2014년 계약(152/240회). 신규 계약 중심 구조에서 간병·수술·진단비 미가입 담보 보완 여부 점검 필요."},
  plan:{
-  p1:["장기요양자금(1~4급) 신설","경증이상 치매진단비 신설","암·뇌혈관·심장 수술비 신설","질병후유장해(3%) 추가"],
-  p2:["사망(상해·질병) 보완","일반암·유사암 진단비 상향","뇌혈관·급성심근경색 진단비 보완","상해수술비 보완"],
-  p3:["변호사선임비용 상향","부상위로금 보완","신규 3계약 납입여력 점검","보험료 대비 보장 최적화"],
-  nextSteps:"① 간병(치매·요양)·수술비 우선 설계 → ② 암·뇌·심장 진단비 부족분 보완 → ③ 사망·생활보장 정비 → ④ 신규 3계약 납입여력 점검 후 최적화"}
+  p1:["장기요양자금(1~4등급) 신설 — 완전 미가입","중증이상 치매진단비 신설 — 완전 미가입","뇌혈관수술비·심장질환수술비 신설","암수술비 신설","후유장해3%(질병) 신설 검토"],
+  p2:["일반암 진단비 보완 (1,500→3,000)","유사암 진단비 보완 (200→1,000)","뇌졸중·급성심근경색 진단비 보완","자동차사고 부상위로금(14급) 보완 (500→5,000)","사망(상해·질병) 보장 보완"],
+  p3:["납입완료 비율(18%) 낮음 — 납입기간 관리","월보험료 317,473원 부담 점검·우선순위 조정","Hi1308 152/240회 경과 — 보장 적정성 검토","응급실·깁스 등 생활담보 부족분 정비"],
+  nextSteps:"① 미가입 영역(요양·치매·수술비) 우선 신규 가입 → ② 암·뇌혈관 진단비 부족분 단계적 보완 → ③ 사망·부상위로금 등 보완 → ④ 신규 3계약 납입여력 점검·최적화 상담"}
 };
 </script>
 </body>
