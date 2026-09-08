@@ -240,7 +240,7 @@ tbody tr:nth-child(even){background:#f8fafd;}
 const API_URL="https://api.anthropic.com/v1/messages";
 const MODEL="claude-opus-4-8";
 /* ===== 비용 안전장치 (건당 상한) ===== */
-const LIMITS={maxFileMB:3, maxPages:25, maxTokensOut:6000, maxCostUSD:1.00, krw:1400, perPageInTok:4000, baseInTok:2000, priceInPerM:5, priceOutPerM:25};
+const LIMITS={maxFileMB:3, maxPages:50, maxTokensOut:6000, maxCostUSD:1.00, krw:1400, perPageInTok:2200, baseInTok:2000, priceInPerM:3, priceOutPerM:15};
 function pdfLatin1(buf){const b=new Uint8Array(buf);let s="";const c=0x8000;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode.apply(null,b.subarray(i,i+c));return s;}
 function countPages(buf){const s=pdfLatin1(buf);let c=(s.match(/\/Type\s*\/Page[^s]/g)||[]).length;const m=s.match(/\/Count\s+(\d+)/);if(m)c=Math.max(c,parseInt(m[1],10));return c;}
 function base64FromBuf(buf){return btoa(pdfLatin1(buf));}
@@ -331,7 +331,7 @@ window.addEventListener("resize",()=>{const p=$("preview");if(p&&p.firstChild){c
 $("run").onclick=async()=>{
   const file=selectedFile;
   if(!file){setStatus("원본 PDF를 선택하세요.","err");return;}
-  $("run").disabled=true;$("runlbl").innerHTML='<span class="spin"></span>변환 중… (최대 1~2분)';
+  $("run").disabled=true;$("runlbl").innerHTML='<span class="spin"></span>변환 중… (최대 2~3분)';
   setStatus("PDF를 검사하는 중…","info");
   try{
     const buf=await file.arrayBuffer();

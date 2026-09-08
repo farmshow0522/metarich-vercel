@@ -1,8 +1,8 @@
-// 메타리치 PDF 변환기 — Vercel 서버리스 함수 (최대 120초, Vercel Pro 필요)
+// 메타리치 PDF 변환기 — Vercel 서버리스 함수 (최대 180초, Vercel Pro 필요)
 // Claude API 키는 서버(이 파일)에만 존재 → 사이트 방문자에게 노출되지 않는다.
 
 const MODEL = "claude-sonnet-4-6"; // 품질(Sonnet) + thinking off/effort low 로 속도 확보
-const LIMITS = { maxBytes: 3 * 1048576, maxPages: 25, maxTokensOut: 6000 }; // Vercel 요청 본문 4.5MB 한도 → 3MB로 제한
+const LIMITS = { maxBytes: 3 * 1048576, maxPages: 50, maxTokensOut: 6000 }; // Vercel 요청 본문 4.5MB 한도 → 파일 3MB로 제한. 페이지는 최대 50p까지 리딩
 
 // ▼▼▼ Claude API 키 — Vercel 환경변수(ANTHROPIC_API_KEY)에서만 읽는다 (소스에 키를 남기지 않음) ▼▼▼
 // 설정: Vercel 프로젝트 → Settings → Environment Variables → ANTHROPIC_API_KEY 추가 후 재배포

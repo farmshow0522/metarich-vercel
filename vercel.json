@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/convert.js": {
-      "maxDuration": 120,
+      "maxDuration": 180,
       "includeFiles": "api/**"
     }
   }
