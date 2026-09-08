@@ -195,7 +195,7 @@ const SCHEMA={type:"object",additionalProperties:false,
  required:["customer","summary","diagnosis","contracts","plan"],
  properties:{
   customer:{type:"object",additionalProperties:false,required:["name","analysisDate","company","org","contact"],
-   properties:{name:{type:"string",description:"고객명. 마스킹/미상이면 '고객님'"},analysisDate:{type:"string"},company:{type:"string"},org:{type:"string"},contact:{type:"string"}}},
+   properties:{name:{type:"string",description:"고객명. 원본 마스킹형(예 김*섭)을 살려 '김*섭 고객님'. 미상이면 '고객님'"},analysisDate:{type:"string",description:"원본 분석일자"},company:{type:"string",description:"주 계약 보험사명"},org:{type:"string",description:"담당 설계사(LP) 정보 '이름(소속/회사)' 예 김광섭(제주센트럴/(주)메타리치)"},contact:{type:"string",description:"담당 설계사 연락처 전화번호"}}},
   summary:{type:"object",additionalProperties:false,required:["sufficient","insufficient","none","monthlyPremium","totalPremium","paidRate","remainingPremium","text"],
    properties:{sufficient:{type:"integer"},insufficient:{type:"integer"},none:{type:"integer"},monthlyPremium:{type:"string"},totalPremium:{type:"string"},paidRate:{type:"string"},remainingPremium:{type:"string"},text:{type:"string"}}},
   diagnosis:{type:"array",items:{type:"object",additionalProperties:false,required:["group","note","rows"],
@@ -211,7 +211,10 @@ const SCHEMA={type:"object",additionalProperties:false,
 const SYSTEM=`너는 보험 보장분석 원본 PDF를 구조화 데이터로 추출하는 분석기다. 첨부된 PDF를 읽고 emit_analysis 도구를 호출해 값을 채워라.
 원칙:
 - 원본에 없는 수치·회사·상품명을 절대 지어내지 마라. 불명확하면 "-" 또는 "확인필요".
-- 개인정보가 마스킹돼 있으면 그대로 두고 name은 "고객님".
+- customer.name(고객명): 원본에 마스킹된 이름(예: "김*섭")이 있으면 그 마스킹 형태를 살려 "김*섭 고객님"처럼 반환한다. 이름을 전혀 알 수 없을 때만 "고객님".
+- customer.org(소속): 원본 상단의 'LP'(담당 설계사) 항목을 "이름(소속/회사)" 형태로 넣는다. 예: "김광섭(제주센트럴/(주)메타리치)". 'LP' 항목이 없으면 '소속' 값을 사용.
+- customer.contact(연락처): 원본 상단 '연락처'의 담당 설계사 전화번호. (보험사 고객센터·대표번호가 아님)
+- customer.analysisDate는 원본 '분석일자', customer.company는 주 계약 보험사명.
 - 금액은 원본 표기 유지(천단위 콤마), 진단표 수치는 만원 단위 숫자.
 - status: 가입금액이 표준 이상이면 "충분"(초과 시 "초과"), 미만이면 "부족", 0/미가입이면 "미가입".
 - diagnosis는 보통 5영역: 사망·후유장해 / 암·뇌혈관·심장 / 의료·수술·입원 / 요양·치매 / 운전자·생활. 원본 구조에 맞게 조정.
@@ -287,7 +290,7 @@ function renderProposal(){
     <div class="cv"><span class="cbadge">INSURANCE COVERAGE REPORT</span>
     <h1>${esc(d.customer.name)}<br>보장분석 제안서</h1>
     <div class="csub">내 모든 보험을 한 눈에 · 보기 쉽고 간단하게</div><div class="rule"></div>
-    <div class="meta">분석일자 <b>${esc(d.customer.analysisDate)}</b><br>소속 <b>${esc(d.customer.org)}</b> · ${esc(d.customer.contact)} · ${esc(d.customer.company)}</div></div>
+    <div class="meta">분석일자 <b>${esc(d.customer.analysisDate)}</b><br>소속 <b>${esc(d.customer.org)}</b><br>연락처 <b>${esc(d.customer.contact)}</b></div></div>
     <div class="stats">
       <div class="stat"><div class="l">보유 계약</div><div class="v">${d.contracts.rows.length}건</div></div>
       <div class="stat"><div class="l">월납보험료 합계</div><div class="v">${esc(d.contracts.totalMonthly)}</div></div>
@@ -359,7 +362,7 @@ $("data").addEventListener("input",saveWork);
 $("reset").onclick=()=>{try{localStorage.removeItem(LS_DATA);}catch(e){}$("data").value="";$("proposal").innerHTML="";$("preview").innerHTML="";$("step2").classList.remove("active");$("step3").classList.remove("active");selectedFile=null;const dp=$("drop");if(dp)dp.classList.remove("has");const fn=$("fileName");if(fn)fn.textContent="모바일에서는 파일·드라이브·사진 앱에서 PDF를 고를 수 있어요";setStatus("작업물을 초기화했습니다.","ok");};
 (function(){try{const saved=localStorage.getItem(LS_DATA);if(saved&&saved.trim()){JSON.parse(saved);$("data").value=saved;renderProposal();setStatus("이전 작업물을 복원했습니다. (지우려면 '초기화')","info");}}catch(e){}})();
 const SAMPLE={
- customer:{name:"고객님",analysisDate:"2026.08.13",company:"롯데손해보험",org:"메타리치 · GA2",contact:"010-7934-1823"},
+ customer:{name:"김*섭 고객님",analysisDate:"2026.08.13",company:"롯데손해보험",org:"김광섭(제주센트럴/(주)메타리치)",contact:"010-7934-1823"},
  summary:{sufficient:18,insufficient:13,none:6,monthlyPremium:"317,473원",totalPremium:"99,643,680원",paidRate:"18%",remainingPremium:"81,870,423원",
   text:"실손·운전자·일상배상 등 기본·생활보장은 충분하나, 간병(치매·요양)이 전액 미가입이고 암·뇌·심장 수술비와 진단비가 부족합니다. 신규 3계약 중심(납입 18%) 구조로 미가입·부족 담보의 우선 보완이 필요합니다."},
  diagnosis:[
