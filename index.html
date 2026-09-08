@@ -331,7 +331,7 @@ window.addEventListener("resize",()=>{const p=$("preview");if(p&&p.firstChild){c
 $("run").onclick=async()=>{
   const file=selectedFile;
   if(!file){setStatus("원본 PDF를 선택하세요.","err");return;}
-  $("run").disabled=true;$("runlbl").innerHTML='<span class="spin"></span>변환 중… (10~40초)';
+  $("run").disabled=true;$("runlbl").innerHTML='<span class="spin"></span>변환 중… (최대 1~2분)';
   setStatus("PDF를 검사하는 중…","info");
   try{
     const buf=await file.arrayBuffer();

@@ -1,4 +1,4 @@
-// 메타리치 PDF 변환기 — Vercel 서버리스 함수 (최대 60초)
+// 메타리치 PDF 변환기 — Vercel 서버리스 함수 (최대 120초, Vercel Pro 필요)
 // Claude API 키는 서버(이 파일)에만 존재 → 사이트 방문자에게 노출되지 않는다.
 
 const MODEL = "claude-sonnet-4-6"; // 품질(Sonnet) + thinking off/effort low 로 속도 확보

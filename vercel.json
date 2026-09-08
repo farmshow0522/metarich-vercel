@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/convert.js": {
-      "maxDuration": 60,
+      "maxDuration": 120,
       "includeFiles": "api/cmaps/**"
     }
   }
