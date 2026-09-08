@@ -14,7 +14,7 @@ const SCHEMA = {
   required: ["customer", "summary", "diagnosis", "contracts", "plan"],
   properties: {
     customer: { type: "object", additionalProperties: false, required: ["name", "analysisDate", "company", "org", "contact"],
-      properties: { name: { type: "string", description: "고객명. 원본 마스킹형(예: 김*섭)을 살려 '김*섭 고객님'. 전혀 알 수 없을 때만 '고객님'" }, analysisDate: { type: "string", description: "원본 분석일자" }, company: { type: "string", description: "주 계약 보험사명" }, org: { type: "string", description: "담당 설계사(LP) 정보를 '이름(소속/회사)' 형태로. 예: 김광섭(제주센트럴/(주)메타리치)" }, contact: { type: "string", description: "담당 설계사 연락처 전화번호(보험사 대표번호 아님)" } } },
+      properties: { name: { type: "string", description: "고객명. 원본 마스킹형(예: 김*섭)을 살려 '김*섭 고객님'. 전혀 알 수 없을 때만 '고객님'" }, analysisDate: { type: "string", description: "원본 분석일자" }, company: { type: "string", description: "주 계약 보험사명. 반드시 contracts에 실제 등장하는 보험사 중 계약 건수가 가장 많은 곳(원본 계약목록에 없는 보험사명 금지)" }, org: { type: "string", description: "담당 설계사(LP) 정보를 '이름(소속/회사)' 형태로. 예: 김광섭(제주센트럴/(주)메타리치)" }, contact: { type: "string", description: "담당 설계사 연락처 전화번호(보험사 대표번호 아님)" } } },
     summary: { type: "object", additionalProperties: false, required: ["sufficient", "insufficient", "none", "monthlyPremium", "totalPremium", "paidRate", "remainingPremium", "text"],
       properties: { sufficient: { type: "integer" }, insufficient: { type: "integer" }, none: { type: "integer" }, monthlyPremium: { type: "string" }, totalPremium: { type: "string" }, paidRate: { type: "string" }, remainingPremium: { type: "string" }, text: { type: "string" } } },
     diagnosis: { type: "array", items: { type: "object", additionalProperties: false, required: ["group", "note", "rows"],
@@ -34,7 +34,7 @@ const SYSTEM = `너는 보험 보장분석 원본 PDF를 구조화 데이터로 
 - customer.name(고객명): 원본 마스킹 이름의 성(첫 글자)은 반드시 살리고 형태를 유지해 "김*섭 고객님"처럼 반환한다. 이름 전체를 "*"나 "＊ 고객님"으로만 만들지 마라. 전혀 알 수 없을 때만 "고객님".
 - customer.org(소속): 원본 상단의 'LP'(담당 설계사) 항목을 "이름(소속/회사)" 형태로 넣는다. 예: "김광섭(제주센트럴/(주)메타리치)". 'LP' 항목이 없으면 '소속' 값을 사용.
 - customer.contact(연락처): 원본 상단 '연락처'의 담당 설계사 전화번호. (보험사 고객센터·대표번호가 아님)
-- customer.analysisDate는 원본 '분석일자', customer.company는 주 계약 보험사명.
+- customer.analysisDate는 원본 '분석일자'. customer.company(주 계약 보험사)는 반드시 '정상계약 리스트'(contracts)에 실제로 등장하는 보험사 중 **계약 건수가 가장 많은(동수면 월보험료가 큰) 보험사명**을 그대로 쓴다. 계약 목록에 없는 보험사명(예: 롯데손해보험 등)을 절대 지어내지 마라.
 - contracts.rows의 company(회사명)·product(상품명)는 '정상계약(가입계약) 리스트' 페이지에서 실제 표기된 값을 정확히 추출하라. 상품코드(예: 2604, Hi1308)만 보고 상품명을 지어내지 말고, 원문의 보험사명(예: 한화손해보험, 현대해상)과 상품명을 그대로 쓴다. 정말 불명확할 때만 "확인필요".
 - 금액은 원본 표기 유지(천단위 콤마), 진단표 수치는 만원 단위 숫자.
 - 단위 일치: 각 진단항목의 standard(표준)와 current(현재)는 같은 기준(연간 한도 또는 회당) 금액으로 비교하라. 통원·소액 담보 등에서 표준과 현재의 단위가 어긋나 비현실적 비율(수백~수천%)이 나오지 않도록 반드시 동일 기준 금액을 사용한다.
